@@ -33,6 +33,12 @@ CV_DIR = pathlib.Path(os.getenv("CV_DIR", ROOT / "data" / "cvs"))
 JOBS_DIR = pathlib.Path(os.getenv("JOBS_DIR", ROOT / "data" / "jobs"))
 K, CHUNK_SIZE, OVERLAP = 3, 800, 100
 CONTACT = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+|\+?\d[\d\s().-]{7,}\d")          # emails and phone numbers
+DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def no_contacts(text: str) -> str:
+    """Remove emails and phone numbers (but keep dates like 2026-07-15)."""
+    return CONTACT.sub(lambda m: m.group() if DATE.fullmatch(m.group().strip()) else "[contact removed]", text)
 
 # Prompt-injection guard (a first, simple layer). INJECTION_GUARD=on removes sentences that talk
 # to the AI from every result, and from the index, and adds a warning.
@@ -117,7 +123,7 @@ def search_cvs(question: str) -> list:
         return [{"note": "No CV contains a relevant answer. Say you do not know."}]
     out = []
     for h in hits:
-        text, warning = guard(CONTACT.sub("[contact removed]", h["text"]))
+        text, warning = guard(no_contacts(h["text"]))
         out.append({"cv": h["cv"], "found_by": "bm25", "text": text[:900]} | ({"warning": warning} if warning else {}))
     return out
 
@@ -130,7 +136,7 @@ def get_cv(file_name: str) -> dict:
     match = next((n for n in INDEX.docs if file_name.lower() in n.lower()), None)
     if not match:
         return {"error": f"No CV named '{file_name}'. Known files: " + ", ".join(sorted(INDEX.docs))}
-    text, warning = guard(CONTACT.sub("[contact removed]", re.sub(r"\s+", " ", INDEX.docs[match])))
+    text, warning = guard(no_contacts(re.sub(r"\s+", " ", INDEX.docs[match])))
     return {"cv": match, "text": text[:6000]} | ({"warning": warning} if warning else {})
 
 
