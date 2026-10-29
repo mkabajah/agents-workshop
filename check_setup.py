@@ -23,6 +23,10 @@ async def main():
     """Run the checks in order and stop at the first failure. Returns 0 (all good) or 1 (fix something).
     async because talking to the MCP server and the model means waiting on them (see docs/python-notes.md)."""
     print(f"MCP server {config.server_mode()}\nRAG_REPO   {config.RAG_REPO or '(not set: bundled cv_server)'}\nRAG python {config.rag_python()}\nCV_DIR     {config.CV_DIR}\nMODEL      {config.MODEL}\n")
+    # CrewAI (frameworks/crewai, session2/09) installs only on Python 3.10–3.13 for now.
+    if sys.version_info >= (3, 14):
+        print(f"⚠️  Python {sys.version.split()[0]}: the core works, but CrewAI needs Python 3.10–3.13.\n"
+              "   For the CrewAI versions, make the venv with python3.12 -m venv .venv\n")
     for pkg in ("langchain", "langgraph", "langchain_mcp_adapters", "mcp"):
         try:
             mod = importlib.import_module(pkg)                # import by name, to test it is installed

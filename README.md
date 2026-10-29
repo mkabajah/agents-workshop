@@ -24,7 +24,7 @@ as the RAG course) and 22 invented CVs (`data/`). Want *your* RAG behind the age
 
 ```bash
 git clone https://github.com/mkabajah/agents-workshop.git && cd agents-workshop
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate   # Python 3.11–3.13 (CrewAI does not support 3.14+ yet)
 pip install -r requirements.txt                 # + requirements-optional.txt for Strands, CrewAI, AgentCore
 cp .env.example .env                            # set MODEL and its API key
 python check_setup.py                           # → ALL GOOD
