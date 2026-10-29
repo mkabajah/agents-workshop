@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from workshop import config  # noqa: E402
 
-pytestmark = pytest.mark.skipif(not (config.RAG_REPO / "challenge" / "mcp_server.py").exists(),
+pytestmark = pytest.mark.skipif(config.RAG_REPO is not None and not (config.RAG_REPO / "challenge" / "mcp_server.py").exists(),
                                 reason=f"RAG repo not found at {config.RAG_REPO}")
 ENV = {**os.environ, "MODEL": "fake", "SMALL_MODEL": "fake", "PYTHONIOENCODING": "utf-8"}
 

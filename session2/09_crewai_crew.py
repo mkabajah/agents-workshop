@@ -53,7 +53,7 @@ def build():
 
 
 def job_post(job: str) -> str:
-    return (config.RAG_REPO / "challenge" / "jobs" / f"{job}.md").read_text(encoding="utf-8")
+    return (config.JOBS_DIR / f"{job}.md").read_text(encoding="utf-8")
 
 
 if __name__ == "__main__":

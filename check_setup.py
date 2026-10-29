@@ -1,7 +1,7 @@
 """
 Run this before class:   python check_setup.py
 
-  ✓ your RAG repo is found and its MCP server starts and lists its 4 tools
+  ✓ the CV MCP server (bundled, or yours via RAG_REPO) starts and lists its 4 tools
   ✓ one tool call works (find_candidates kafka)
   ✓ the model in MODEL answers one short message (skipped for MODEL=fake)
 """
@@ -16,7 +16,7 @@ OK, BAD = "\033[92m✓\033[0m", "\033[91m✗\033[0m"
 
 
 async def main():
-    print(f"RAG_REPO   {config.RAG_REPO}\nRAG python {config.rag_python()}\nCV_DIR     {config.CV_DIR}\nMODEL      {config.MODEL}\n")
+    print(f"MCP server {config.server_mode()}\nRAG_REPO   {config.RAG_REPO or '(not set: bundled cv_server)'}\nRAG python {config.rag_python()}\nCV_DIR     {config.CV_DIR}\nMODEL      {config.MODEL}\n")
     for pkg in ("langchain", "langgraph", "langchain_mcp_adapters", "mcp"):
         try:
             mod = importlib.import_module(pkg)

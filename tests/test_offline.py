@@ -1,7 +1,7 @@
 """
 Offline tests: every script runs end to end with MODEL=fake against YOUR RAG MCP server.
 
-    pytest -q                       # uses RAG_REPO from .env (or ../rag-zero-to-agentic)
+    pytest -q                       # the bundled CV server (or RAG_REPO from .env)
 
 No API key and no network needed. Set RAG_EMBEDDER=tfidf to skip the MiniLM download.
 They check the plumbing (MCP, the loop, memory, approvals, graphs, evals), not the model's quality:
@@ -19,7 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from workshop import config  # noqa: E402
 
-pytestmark = pytest.mark.skipif(not (config.RAG_REPO / "challenge" / "mcp_server.py").exists(),
+pytestmark = pytest.mark.skipif(config.RAG_REPO is not None and not (config.RAG_REPO / "challenge" / "mcp_server.py").exists(),
                                 reason=f"RAG repo not found at {config.RAG_REPO}")
 ENV = {**os.environ, "MODEL": "fake", "SMALL_MODEL": "fake", "PYTHONIOENCODING": "utf-8"}
 

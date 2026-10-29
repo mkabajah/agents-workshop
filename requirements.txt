@@ -1,4 +1,4 @@
-# The agent side only. The RAG MCP server runs in rag-zero-to-agentic's own .venv.
+# Everything this repo needs, including the bundled CV MCP server (cv_server/).
 langchain>=1.0,<2
 langgraph>=1.0,<2
 langchain-mcp-adapters>=0.2
@@ -7,6 +7,7 @@ langsmith>=0.4
 langgraph-checkpoint-sqlite>=2.0      # durable pauses: session1/04 --sqlite
 aiosqlite>=0.20
 pydantic>=2
+pypdf>=4                              # the bundled server reads PDF CVs (injection demo)
 pytest>=8
 
 # pick the provider(s) you use with MODEL=

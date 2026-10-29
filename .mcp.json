@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "cv-agent": {
+      "type": "stdio",
+      "command": ".venv/bin/python",
+      "args": ["-m", "cv_server.server"],
+      "env": {}
+    }
+  }
+}

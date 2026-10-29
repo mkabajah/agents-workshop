@@ -1,5 +1,6 @@
 """
-Your RAG, reached through the MCP server you built in the RAG course (challenge/mcp_server.py).
+Your CV search, reached through an MCP server: the bundled one (cv_server/server.py) by default,
+or the one you built in the RAG course (set RAG_REPO), or a remote one (set RAG_MCP_URL).
 
 The agent never imports the RAG code. It starts the server as a child process (stdio), asks it
 which tools it has (tools/list) and calls them (tools/call), exactly like Claude Desktop, Claude
@@ -26,7 +27,8 @@ PASSTHROUGH = ("RAG_EMBEDDER", "RAG_RERANKER", "RAG_LLM", "INJECTION_GUARD", "HF
 def server_config(cv_dir=None, extra_env=None) -> dict:
     """The same JSON you put in Claude Desktop's config or .mcp.json, as a Python dict.
 
-    Local (default): start challenge/mcp_server.py as a child process over stdio.
+    Bundled (default): start cv_server/server.py as a child process over stdio.
+    Your own RAG: set RAG_REPO to start its challenge/mcp_server.py instead.
     Remote: set RAG_MCP_URL (e.g. http://127.0.0.1:8000/mcp from the RAG repo's
     challenge/mcp_live/step4_remote.py, or an MCP server hosted on AgentCore) and MCP_TOKEN.
     """
@@ -37,6 +39,10 @@ def server_config(cv_dir=None, extra_env=None) -> dict:
     env["CV_DIR"] = str(cv_dir or config.CV_DIR)
     env.setdefault("FASTMCP_LOG_LEVEL", os.getenv("FASTMCP_LOG_LEVEL", "WARNING"))   # quieter server logs
     env.update(extra_env or {})
+    if config.RAG_REPO is None:
+        env["JOBS_DIR"] = str(config.JOBS_DIR)
+        return {"cv": {"transport": "stdio", "command": config.rag_python(),
+                       "args": ["-m", "cv_server.server"], "cwd": str(config.ROOT), "env": env}}
     return {
         "cv": {
             "transport": "stdio",

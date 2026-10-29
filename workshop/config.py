@@ -2,9 +2,13 @@
 Where things are, and which model to use. Everything is an environment variable, so the
 same scripts run on a laptop with a free model, in class with a paid one, and in tests offline.
 
-    RAG_REPO     path to your rag-zero-to-agentic repo         default: ../rag-zero-to-agentic
-    RAG_PYTHON   the Python that runs the RAG MCP server       default: <RAG_REPO>/.venv/bin/python
-    CV_DIR       the CVs the server reads                      default: <RAG_REPO>/data/cvs/candidates (invented CVs)
+    (nothing)    the repo runs on its own: the bundled CV MCP server (cv_server/) and the
+                 invented CVs in data/cvs. No other repo needed.
+    RAG_REPO     OPTIONAL · bring your own RAG: the path to rag-zero-to-agentic; the agents then
+                 call YOUR challenge/mcp_server.py instead of the bundled server
+    RAG_PYTHON   the Python that runs that server              default: <RAG_REPO>/.venv/bin/python
+    RAG_MCP_URL  OPTIONAL · a remote MCP server (Streamable HTTP), with MCP_TOKEN
+    CV_DIR       the CVs the server reads                      default: data/cvs (invented CVs)
     MODEL        the LLM, as "provider:model"                  default: openai:gpt-4o-mini
                  e.g. anthropic:claude-sonnet-4-6 · openai:gpt-4o-mini · ollama:qwen2.5:7b
                  · openai:openai/gpt-oss-20b with OPENAI_BASE_URL=https://api.groq.com/openai/v1
@@ -31,16 +35,30 @@ def _load_dotenv():
 
 _load_dotenv()
 
-RAG_REPO = pathlib.Path(os.getenv("RAG_REPO", ROOT.parent / "rag-zero-to-agentic")).expanduser().resolve()
-CV_DIR = pathlib.Path(os.getenv("CV_DIR", RAG_REPO / "data" / "cvs" / "candidates")).expanduser().resolve()
+DATA = ROOT / "data"
+JOBS_DIR = DATA / "jobs"
+SECURITY_DIR = DATA / "security"                 # Sam_Tester_CV.pdf, the injection demo
+RAG_REPO = pathlib.Path(os.environ["RAG_REPO"]).expanduser().resolve() if os.getenv("RAG_REPO") else None
+CV_DIR = pathlib.Path(os.getenv("CV_DIR", DATA / "cvs")).expanduser().resolve()
+
+
+def server_mode() -> str:
+    """remote (RAG_MCP_URL) > your own RAG (RAG_REPO) > bundled (default)."""
+    if os.getenv("RAG_MCP_URL"):
+        return "remote"
+    return "rag-repo" if RAG_REPO else "bundled"
+
+
 MODEL = os.getenv("MODEL", "openai:gpt-4o-mini")
 SMALL_MODEL = os.getenv("SMALL_MODEL", MODEL)
 
 
 def rag_python() -> str:
-    """The RAG server runs in the RAG repo's own virtualenv (it needs torch, chromadb, pypdf…)."""
+    """Bundled server: this Python. Your RAG server: the RAG repo's own virtualenv (torch, chromadb…)."""
     if os.getenv("RAG_PYTHON"):
         return os.environ["RAG_PYTHON"]
+    if RAG_REPO is None:
+        return sys.executable
     for candidate in (RAG_REPO / ".venv" / "bin" / "python", RAG_REPO / ".venv" / "Scripts" / "python.exe"):
         if candidate.exists():
             return str(candidate)
@@ -49,10 +67,10 @@ def rag_python() -> str:
 
 def check():
     """Fail early, with a message a student can act on."""
-    server = RAG_REPO / "challenge" / "mcp_server.py"
-    if not server.exists():
+    if RAG_REPO is not None and not (RAG_REPO / "challenge" / "mcp_server.py").exists():
+        server = RAG_REPO / "challenge" / "mcp_server.py"
         sys.exit(f"Can't find your RAG MCP server at {server}.\n"
-                 f"Set RAG_REPO in .env to the folder of rag-zero-to-agentic.")
+                 f"Fix RAG_REPO in .env, or remove it to use the bundled server.")
     if not CV_DIR.exists():
         sys.exit(f"CV_DIR does not exist: {CV_DIR}")
     if "challenge/cvs" in CV_DIR.as_posix() and not MODEL.startswith(("ollama", "fake")):
