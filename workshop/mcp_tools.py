@@ -24,7 +24,15 @@ PASSTHROUGH = ("RAG_EMBEDDER", "RAG_RERANKER", "RAG_LLM", "INJECTION_GUARD", "HF
 
 
 def server_config(cv_dir=None, extra_env=None) -> dict:
-    """The same JSON you put in Claude Desktop's config or .mcp.json, as a Python dict."""
+    """The same JSON you put in Claude Desktop's config or .mcp.json, as a Python dict.
+
+    Local (default): start challenge/mcp_server.py as a child process over stdio.
+    Remote: set RAG_MCP_URL (e.g. http://127.0.0.1:8000/mcp from the RAG repo's
+    challenge/mcp_live/step4_remote.py, or an MCP server hosted on AgentCore) and MCP_TOKEN.
+    """
+    if os.getenv("RAG_MCP_URL"):
+        headers = {"Authorization": f"Bearer {os.environ['MCP_TOKEN']}"} if os.getenv("MCP_TOKEN") else {}
+        return {"cv": {"transport": "streamable_http", "url": os.environ["RAG_MCP_URL"], "headers": headers}}
     env = {k: os.environ[k] for k in PASSTHROUGH if k in os.environ}
     env["CV_DIR"] = str(cv_dir or config.CV_DIR)
     env.setdefault("FASTMCP_LOG_LEVEL", os.getenv("FASTMCP_LOG_LEVEL", "WARNING"))   # quieter server logs
@@ -41,7 +49,8 @@ def server_config(cv_dir=None, extra_env=None) -> dict:
 
 
 def client(cv_dir=None, extra_env=None) -> MultiServerMCPClient:
-    config.check()
+    if not os.getenv("RAG_MCP_URL"):
+        config.check()
     return MultiServerMCPClient(server_config(cv_dir, extra_env))
 
 

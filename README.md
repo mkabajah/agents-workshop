@@ -1,5 +1,7 @@
 # Agents Workshop · from your RAG MCP server to a team of agents
 
+By **Mohammad Kabajah**. Builds on [rag-zero-to-agentic](https://github.com/mkabajah/rag-zero-to-agentic).
+
 Two 2.5-hour sessions. You already built a **RAG over CVs** and exposed it as an **MCP server**
 (`rag-zero-to-agentic/challenge/mcp_server.py`) that Claude Desktop, Claude Code or Kiro could call.
 In Claude Desktop, *Claude* was the agent. Here you build the agent yourself, then a team of agents:
@@ -62,10 +64,20 @@ Lab: [`labs/SESSION1_LAB.md`](labs/SESSION1_LAB.md)
 
 Capstone: [`labs/SESSION2_CAPSTONE.md`](labs/SESSION2_CAPSTONE.md)
 
+## More examples · `examples/`
+
+Twelve short, single-pattern examples on the same MCP server: tool calling, structured output,
+streaming, router, plan-and-execute, reflection, parallel fan-out, long-term memory, a Strands Graph,
+a CrewAI Flow, and the hiring agent behind **AWS Bedrock AgentCore Runtime** (Strands and LangGraph).
+See [`examples/README.md`](examples/README.md). Which framework to teach and pick: [`FRAMEWORKS.md`](FRAMEWORKS.md).
+
+**Remote MCP:** set `RAG_MCP_URL=http://127.0.0.1:8000/mcp` and `MCP_TOKEN=…` to use the RAG repo's
+`challenge/mcp_live/step4_remote.py` (or an MCP server on AgentCore) instead of a local process.
+
 ## Test
 
 ```bash
-RAG_EMBEDDER=tfidf pytest -q        # every script, end to end, MODEL=fake, against your MCP server
+RAG_EMBEDDER=tfidf pytest -q        # 24 tests: every script and example, MODEL=fake, against your MCP server
 ```
 
 ## Files
@@ -73,7 +85,8 @@ RAG_EMBEDDER=tfidf pytest -q        # every script, end to end, MODEL=fake, agai
 ```
 workshop/      config.py (env) · models.py (get_model + the fake) · mcp_tools.py (your RAG over MCP)
                actions.py (mock write tools → outbox/) · prompts.py · show.py (prints the trace)
-session1/      01–06          session2/   07–12          evals/   hiring_eval.jsonl
+session1/      01–06          session2/   07–12          examples/  01–12 single patterns
+evals/         hiring_eval.jsonl                          FRAMEWORKS.md  which framework, and why
 labs/          the lab and the capstone brief + rubric    tests/   offline end-to-end tests
 outbox/        what the agent "did": interviews, emails, shortlists, audit log (git-ignored)
 ```

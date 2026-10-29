@@ -49,6 +49,7 @@ class ScriptedChatModel(BaseChatModel):
     """A rule-following stand-in for an LLM that can call tools."""
 
     tool_names: list[str] = []
+    tool_args: dict[str, list[str]] = {}
     max_calls: int = 8
 
     @property
@@ -60,8 +61,12 @@ class ScriptedChatModel(BaseChatModel):
             if isinstance(t, dict):
                 return t.get("name") or t.get("function", {}).get("name")
             return getattr(t, "name", None) or t.__name__
+        def args(t):
+            if isinstance(t, dict):
+                return list((t.get("function", t).get("parameters") or {}).get("properties", {}))
+            return list(getattr(t, "args", {}) or {})
         names = [name(t) for t in tools]
-        return self.model_copy(update={"tool_names": names})
+        return self.model_copy(update={"tool_names": names, "tool_args": {name(t): args(t) for t in tools}})
 
     # ------------------------------------------------------------------ one model call
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
@@ -111,5 +116,9 @@ class ScriptedChatModel(BaseChatModel):
         if found and "email" in q:
             yield "send_email", {"cv": found[0], "subject": f"Your application: {job}",
                                  "body": "Thank you for applying. We'd like to talk next week."}
+        for name in self.tool_names:                               # any other tool named in the question
+            verb = name.split("_")[0]                              # e.g. "remember" in remember_preference
+            if name not in ONCE and name != "find_candidates" and len(verb) > 3 and verb in q:
+                yield name, {a: question for a in self.tool_args.get(name, [])}
         if found and "save" in q:
             yield "save_shortlist", {"job": job, "candidates": found[:3], "reasons": ["matches the must-haves"] * len(found[:3])}
