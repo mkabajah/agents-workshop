@@ -1,7 +1,7 @@
 """
 SESSION 2 · STEP 11 · Evaluation: a small dataset beats a gut feeling.
 
-    python session2/11_evals.py                 # run the agent on evals/hiring_eval.jsonl, print a scoreboard
+    python session2/11_evals.py                 # run the agent on data/hiring_eval.jsonl, print a scoreboard
     python session2/11_evals.py --judge         # + LLM-as-judge: is every claim supported by the tool results?
     python session2/11_evals.py --langsmith     # also upload the dataset and the run to LangSmith
 
@@ -12,7 +12,7 @@ Three kinds of checks:
 
 Run it before and after every change to a prompt, a tool description, the model or the RAG.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import argparse
 import asyncio
@@ -22,7 +22,7 @@ import re
 import sys
 import time
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -35,7 +35,7 @@ from workshop.models import get_model
 from workshop.prompts import HIRING_AGENT
 from workshop.show import banner, content_text
 
-DATA = pathlib.Path(__file__).resolve().parents[1] / "evals" / "hiring_eval.jsonl"
+DATA = pathlib.Path(__file__).resolve().parents[1] / "data" / "hiring_eval.jsonl"
 REFUSAL = re.compile(r"\b(no (cv|candidate)|none of the|not (found|in the|mentioned)|don.?t know|no one|nobody|no matching)\b", re.I)
 
 

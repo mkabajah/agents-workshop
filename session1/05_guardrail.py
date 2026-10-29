@@ -10,7 +10,7 @@ Two custom middlewares:
 
 A prompt can be talked out of a rule (or ignore it). Middleware cannot: it runs on every call.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import json
@@ -18,7 +18,7 @@ import pathlib
 import sys
 import time
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

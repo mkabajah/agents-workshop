@@ -6,13 +6,13 @@ SESSION 1 · STEP 2 · The same loop with LangChain 1.x: create_agent + your MCP
 create_agent(model, tools, system_prompt) builds the loop from step 1 for you, as a LangGraph
 graph with two nodes (model, tools). The tools: your 4 RAG tools over MCP + one local tool.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

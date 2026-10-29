@@ -11,7 +11,6 @@ A Flow is CrewAI's version of a graph: methods are the steps, decorators are the
 self.state is the shared notebook (like LangGraph's state).
 """
 import pathlib
-import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
@@ -21,7 +20,7 @@ from crewai.flow.flow import Flow, listen, router, start
 from pydantic import BaseModel
 
 from workshop.crewai_kit import RULES, crew_llm, cv_call, cv_server, save_shortlist
-from workshop.models import SKILLS
+from workshop.jobs import must_haves
 
 AUTO = "--auto" in sys.argv
 
@@ -33,17 +32,6 @@ class Screening(BaseModel):                       # the shared notebook every st
     shortlist: list[str] = []
     report: str = ""
     approved: bool = False
-
-
-def must_haves(post: str) -> list[str]:
-    """The skills named under '## Must have' (first known skill on each line), as in the LangGraph version."""
-    block = post.split("## Must have", 1)[-1].split("##", 1)[0].lower()
-    out = []
-    for line in block.splitlines():
-        hits = sorted((m.start(), s) for s in SKILLS for m in [re.search(rf"(?<![a-z]){re.escape(s)}(?![a-z])", line)] if m)
-        if hits:
-            out.append(hits[0][1])
-    return out
 
 
 class ScreeningFlow(Flow[Screening]):

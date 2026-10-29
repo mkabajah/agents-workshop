@@ -7,13 +7,13 @@ response_format=<Pydantic model> makes create_agent finish with an object your c
 sort or show in a UI. Use it whenever the next step is code, not a person.
 Needs a real model (MODEL=fake cannot fill a schema).
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

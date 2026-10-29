@@ -9,14 +9,14 @@ The model decides ONCE (which kind of question?), then plain code runs the right
 Cheaper and more predictable than an agent, when the kinds of questions are known.
 With MODEL=fake the classifier falls back to keywords.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 from typing import Literal, TypedDict
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langgraph.graph import END, START, StateGraph

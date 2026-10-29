@@ -7,13 +7,13 @@ Thread memory (checkpointer) ends with the conversation. A STORE keeps facts acr
 per user: "Dana prefers candidates in Haifa". The agent reads and writes it through two tools,
 so it decides what is worth remembering. Production: a Postgres or vector store instead of memory.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

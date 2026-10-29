@@ -6,14 +6,14 @@ EXAMPLE 01 · Tool calling, one call, no loop.            Pattern: the atom ever
 The model gets a question and the tool schemas, and returns either text or a request to call a
 tool. Nothing runs: you only SEE the request. Everything else in this repo is this, in a loop.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import json
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from workshop.mcp_tools import rag_tools

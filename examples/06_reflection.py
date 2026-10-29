@@ -7,14 +7,14 @@ The writer drafts an interview invitation from the CV evidence; the critic check
 rubric (specific, fair, short, no promises, no personal data) and returns PASS or fixes.
 At most 3 rounds: a loop always needs a budget. Built as a 2-node LangGraph with a cycle.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 from typing import TypedDict
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langgraph.graph import END, START, StateGraph

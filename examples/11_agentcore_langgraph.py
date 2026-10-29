@@ -2,19 +2,19 @@
 EXAMPLE 12 · The SAME AgentCore entrypoint around a LangChain/LangGraph agent.      AWS, any framework
 
     pip install bedrock-agentcore
-    python examples/12_agentcore_langgraph.py
+    python examples/11_agentcore_langgraph.py
     curl -X POST localhost:8080/invocations -H 'Content-Type: application/json' \\
          -d '{"prompt": "Who knows Kafka?", "thread_id": "dana-1"}'
 
 The point: AgentCore Runtime hosts LangGraph, Strands, CrewAI or plain Python the same way.
 Choosing LangGraph today does not block running on AWS tomorrow; only these ~15 lines change.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from bedrock_agentcore.runtime import BedrockAgentCoreApp

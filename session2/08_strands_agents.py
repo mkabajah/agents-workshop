@@ -11,44 +11,19 @@ Same MCP server, different client: strands.tools.mcp.MCPClient.
 
 Model: taken from MODEL (anthropic:…, openai:…, ollama:…) or MODEL=bedrock for Strands' default.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import os
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from mcp import StdioServerParameters, stdio_client
 from strands import Agent
 from strands.multiagent import Swarm
-from strands.tools.mcp import MCPClient
 
-from workshop import config, mcp_tools, prompts
-
-
-def strands_model():
-    provider, _, name = config.MODEL.partition(":")
-    if provider == "anthropic":
-        from strands.models.anthropic import AnthropicModel
-        return AnthropicModel(model_id=name, max_tokens=2000)
-    if provider == "openai":
-        from strands.models.openai import OpenAIModel
-        args = {"base_url": os.environ["OPENAI_BASE_URL"]} if os.getenv("OPENAI_BASE_URL") else {}
-        return OpenAIModel(model_id=name, client_args=args)
-    if provider == "ollama":
-        from strands.models.ollama import OllamaModel
-        return OllamaModel(host="http://localhost:11434", model_id=name)
-    if provider == "fake":
-        sys.exit("MODEL=fake is a LangChain stand-in; Strands needs a real model (try MODEL=ollama:qwen2.5:7b).")
-    return None                                                     # None = Strands' default (Amazon Bedrock)
-
-
-def rag_client() -> MCPClient:
-    cv = mcp_tools.server_config()["cv"]
-    return MCPClient(lambda: stdio_client(StdioServerParameters(
-        command=cv["command"], args=cv["args"], env=cv["env"], cwd=cv["cwd"])))
+from workshop import config, prompts
+from workshop.strands_kit import cv_client, strands_model
 
 
 def build(rag_tools, swarm=False):
@@ -74,7 +49,7 @@ if __name__ == "__main__":
     config.check()
     use_swarm, dry = "--swarm" in sys.argv, "--dry" in sys.argv
     ask = " ".join(a for a in sys.argv[1:] if not a.startswith("--")) or "Shortlist 3 candidates for the backend job."
-    with rag_client() as rag:                                     # opens one MCP session for the run
+    with cv_client() as rag:                                     # opens one MCP session for the run
         tools = rag.list_tools_sync()
         print("MCP tools:", [t.tool_name for t in tools])
         if dry:

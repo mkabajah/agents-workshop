@@ -3,7 +3,6 @@ Offline tests for frameworks/strands and frameworks/crewai: every step runs end 
 MODEL=fake against the bundled CV MCP server. Skipped when the optional package is missing.
 """
 import importlib.util
-import json
 import os
 import pathlib
 import subprocess
@@ -68,3 +67,11 @@ def test_06_workflow_same_shortlist_as_langgraph(fw):
 def test_run_py_lists_all_frameworks():
     out = run("--list")
     assert all(name in out for name in ("langchain", "strands", "crewai"))
+
+
+@pytest.mark.parametrize("script", [pytest.param("08_strands_agents.py", marks=FRAMEWORKS[0].marks),
+                                    pytest.param("09_crewai_crew.py", marks=FRAMEWORKS[1].marks)])
+def test_session2_framework_teams_build(script):
+    p = subprocess.run([sys.executable, str(ROOT / "session2" / script), "--dry"], capture_output=True, text=True,
+                       env=ENV, cwd=ROOT, timeout=300)
+    assert p.returncode == 0, p.stdout[-1500:] + p.stderr[-1500:]

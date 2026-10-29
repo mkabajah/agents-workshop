@@ -10,7 +10,7 @@ The agent now has action tools (schedule_interview, send_email). Reads run freel
 stops the graph and waits for a person: approve, edit the arguments, or reject with a reason.
 Look in outbox/ afterwards to see what really "happened".
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import argparse
 import asyncio
@@ -19,7 +19,7 @@ import pathlib
 import sys
 import uuid
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

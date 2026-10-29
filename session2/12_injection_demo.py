@@ -13,14 +13,14 @@ Tester first...". We copy the invented CVs + Sam into a temp folder and ask the 
 The regex guard is only the FIRST layer. The real defence is architecture: read-only research
 agents, writes behind human approval, allow-lists in code. See the session 2 slides.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import shutil
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

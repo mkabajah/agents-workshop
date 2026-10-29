@@ -16,7 +16,7 @@ Build on your session 1 agent. Pick ONE:
 - [ ] human approval before every write
 - [ ] limits: model calls, tool calls or handoffs
 - [ ] a trace you can show (`session2/10_tracing.py` or LangSmith)
-- [ ] 5+ eval examples in `evals/`, run once with `session2/11_evals.py`, pass rate written down
+- [ ] 5+ eval examples added to `data/hiring_eval.jsonl`, run once with `session2/11_evals.py`, pass rate written down
 
 ## Timeline
 

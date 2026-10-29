@@ -58,7 +58,7 @@ python run.py 04 --framework crewai                                  # approval 
 python run.py --list
 ```
 
-New to `async`/`await`, `async with` or decorators? Read [`PYTHON_NOTES.md`](PYTHON_NOTES.md) first (5 minutes).
+New to `async`/`await`, `async with` or decorators? Read [`docs/python-notes.md`](docs/python-notes.md) first (5 minutes).
 
 ## Session 1 · one agent
 
@@ -71,7 +71,7 @@ New to `async`/`await`, `async with` or decorators? Read [`PYTHON_NOTES.md`](PYT
 | 05 | `python session1/05_guardrail.py` | Your own middleware: *no action without evidence*, an audit log |
 | 06 | `python session1/06_langgraph_screening.py backend-engineer` | LangGraph: a workflow you can draw, with an agent in one node and `interrupt()` |
 
-Lab: [`labs/SESSION1_LAB.md`](labs/SESSION1_LAB.md)
+Lab: [`docs/session1-lab.md`](docs/session1-lab.md)
 
 ## Session 2 · a team of agents, measured and safe
 
@@ -84,35 +84,38 @@ Lab: [`labs/SESSION1_LAB.md`](labs/SESSION1_LAB.md)
 | 11 | `python session2/11_evals.py [--judge]` | An eval set: right tool, recall, precision, refusal, LLM-as-judge |
 | 12 | `python session2/12_injection_demo.py` | Prompt injection through a CV, and the first defence |
 
-Capstone: [`labs/SESSION2_CAPSTONE.md`](labs/SESSION2_CAPSTONE.md)
+Capstone: [`docs/session2-capstone.md`](docs/session2-capstone.md)
 
 ## More examples · `examples/`
 
-Twelve short, single-pattern examples on the same MCP server: tool calling, structured output,
+Eleven short, single-pattern examples on the same MCP server: tool calling, structured output,
 streaming, router, plan-and-execute, reflection, parallel fan-out, long-term memory, a Strands Graph,
-a CrewAI Flow, and the hiring agent behind **AWS Bedrock AgentCore Runtime** (Strands and LangGraph).
-See [`examples/README.md`](examples/README.md). Which framework to teach and pick: [`FRAMEWORKS.md`](FRAMEWORKS.md).
+and the hiring agent behind **AWS Bedrock AgentCore Runtime** (Strands and LangGraph).
+See [`examples/README.md`](examples/README.md).
 
-**Reuse before you build:** MCP servers, Agent Skills and reference repos worth stealing from are in
-[`RESOURCES.md`](RESOURCES.md).
+## Docs
+
+| File | What |
+|---|---|
+| [`docs/python-notes.md`](docs/python-notes.md) | `async`/`await`, `async with`, decorators… in plain words |
+| [`frameworks/README.md`](frameworks/README.md) | the three frameworks side by side, and which one to pick |
+| [`docs/session1-lab.md`](docs/session1-lab.md) · [`docs/session2-capstone.md`](docs/session2-capstone.md) | the lab and the capstone brief + rubric |
+| [`docs/resources.md`](docs/resources.md) | MCP servers, Agent Skills and repos worth reusing |
 
 ## Test
 
 ```bash
-pytest -q        # 35 tests: every script, example and framework version, MODEL=fake, against the bundled MCP server
+pytest -q        # every script, example and framework version, MODEL=fake, against the bundled MCP server
 ```
 
-## Files
+## Folders
 
 ```
-run.py         one entry point: python run.py <step> [--framework strands|crewai]
-frameworks/    the Session 1 steps in Strands and CrewAI     PYTHON_NOTES.md  async, with, decorators in plain words
-cv_server/     the bundled CV MCP server (4 tools)        data/  cvs/ (invented) · jobs/ · security/ (injection demo)
-workshop/      config.py (env) · models.py (get_model + the fake) · mcp_tools.py (the MCP server as LangChain tools)
-               actions.py (mock write tools → outbox/) · prompts.py · show.py (prints the trace)
-session1/      01–06          session2/   07–12          examples/  01–12 single patterns
-evals/         hiring_eval.jsonl                          FRAMEWORKS.md  which framework, and why
-.claude/       skills for Claude Code · .mcp.json         RESOURCES.md   MCP servers, skills, repos to reuse
-labs/          the lab and the capstone brief + rubric    tests/   offline end-to-end tests
-outbox/        what the agent "did": interviews, emails, shortlists, audit log (git-ignored)
+session1/  session2/   the class scripts, step 01 → 12 (LangChain + LangGraph, the default)
+frameworks/            the Session 1 steps again in Strands and CrewAI        run.py  runs any of them
+examples/              11 single-pattern agents to read at home
+workshop/              shared code: config, models (+ the offline fake), MCP client, prompts, write tools
+cv_server/  data/      the CV MCP server · invented CVs, job posts, the eval set, the injection demo CV
+docs/  tests/          the guides above · offline end-to-end tests
+outbox/                what the agent "did": interviews, emails, shortlists, audit log (created on run, git-ignored)
 ```

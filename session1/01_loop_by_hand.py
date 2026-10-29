@@ -13,13 +13,13 @@ What you see:
 Every agent framework (LangChain, Strands, CrewAI, the OpenAI and Claude SDKs) is this loop
 plus memory, limits, streaming, hooks and tracing.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage

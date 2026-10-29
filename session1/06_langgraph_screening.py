@@ -14,17 +14,16 @@ SESSION 1 · STEP 6 · LangGraph: when you KNOW the process, draw it. Put an age
   approve    interrupt(): a hiring manager approves or rejects         a human
   save       save_shortlist                                            plain code
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import json
 import pathlib
-import re
 import sys
 import uuid
 from typing import TypedDict
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -34,7 +33,8 @@ from langgraph.types import Command, interrupt
 
 from workshop import actions
 from workshop.mcp_tools import rag_tools
-from workshop.models import SKILLS, get_model
+from workshop.jobs import must_haves
+from workshop.models import get_model
 from workshop.prompts import SCREENER
 from workshop.show import banner, content_text
 
@@ -48,17 +48,6 @@ class Screening(TypedDict, total=False):
     shortlist: list[str]
     report: str
     approved: bool
-
-
-def must_haves(post: str) -> list[str]:
-    """The skills named under '## Must have' (first known skill on each line)."""
-    block = post.split("## Must have", 1)[-1].split("##", 1)[0].lower()
-    out = []
-    for line in block.splitlines():
-        hits = sorted((m.start(), s) for s in SKILLS for m in [re.search(rf"(?<![a-z]){re.escape(s)}(?![a-z])", line)] if m)
-        if hits:
-            out.append(hits[0][1])
-    return out
 
 
 def as_json(result):

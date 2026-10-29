@@ -9,22 +9,20 @@ EXAMPLE 09 · Strands Graph: a developer-drawn flow of agents, with a condition.
 Same idea as session1/06 in LangGraph, in Strands' GraphBuilder. Nodes are Agents; edges can
 carry a condition that reads the graph state.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import os
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "session2"))
 
 from strands import Agent
 from strands.multiagent import GraphBuilder
 
 from workshop import config, prompts
+from workshop.strands_kit import cv_client, strands_model
 
-strands08 = __import__("08_strands_agents")                       # reuse strands_model() and rag_client()
 
 
 def screener_found_evidence(state) -> bool:
@@ -35,7 +33,7 @@ def screener_found_evidence(state) -> bool:
 
 def build(tools):
     t = {x.tool_name: x for x in tools}
-    model = strands08.strands_model()
+    model = strands_model()
     sourcer = Agent(name="sourcer", model=model, system_prompt=prompts.SOURCER,
                     tools=[t["find_candidates"], t["search_cvs"], t["list_jobs"]])
     screener = Agent(name="screener", model=model, system_prompt=prompts.SCREENER, tools=[t["get_cv"]])
@@ -56,7 +54,7 @@ def build(tools):
 if __name__ == "__main__":
     config.check()
     ask = " ".join(a for a in sys.argv[1:] if not a.startswith("--")) or "Shortlist for the backend job"
-    with strands08.rag_client() as rag:
+    with cv_client() as rag:
         tools = rag.list_tools_sync()
         if "--dry" in sys.argv:
             os.environ.setdefault("AWS_REGION", "us-east-1")

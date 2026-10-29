@@ -74,17 +74,12 @@ def test_09_strands_graph_builds():
     assert "nodes: ['sourcer', 'screener', 'writer']" in run("09_strands_graph.py", "--dry", env=env)
 
 
-@pytest.mark.skipif(not has("crewai"), reason="crewai not installed")
-def test_10_crewai_flow_builds():
-    env = {**ENV, "MODEL": "anthropic:claude-sonnet-4-6", "ANTHROPIC_API_KEY": "dummy", "CREWAI_DISABLE_TELEMETRY": "true"}
-    assert "Built: HiringFlow" in run("10_crewai_flow.py", "--dry", env=env)
-
 
 @pytest.mark.skipif(not has("bedrock_agentcore"), reason="bedrock-agentcore not installed")
-def test_12_agentcore_langgraph_serves_invocations(monkeypatch):
+def test_11_agentcore_langgraph_serves_invocations(monkeypatch):
     monkeypatch.setenv("MODEL", "fake")
     monkeypatch.setattr(config, "MODEL", "fake")
-    spec = importlib.util.spec_from_file_location("ac12", ROOT / "examples" / "12_agentcore_langgraph.py")
+    spec = importlib.util.spec_from_file_location("ac11", ROOT / "examples" / "11_agentcore_langgraph.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     from starlette.testclient import TestClient

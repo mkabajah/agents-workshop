@@ -11,7 +11,7 @@ It runs the multi-agent team from step 7 and prints one row per step, indented b
 the lead's calls, and INSIDE them the specialists' own model and tool calls.
 Strands and CrewAI emit OpenTelemetry traces instead; LangSmith, Langfuse and others accept them.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import importlib.util
@@ -21,7 +21,7 @@ import sys
 import time
 import uuid
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain_core.callbacks import AsyncCallbackHandler

@@ -7,13 +7,13 @@ An agent can take 10–60 seconds. Streaming the steps ("searching CVs… readin
 makes the wait feel short and makes the agent's reasoning visible to the user.
 stream_mode="updates" yields one event per node: the model's turn, then the tools' turn.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
+New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent

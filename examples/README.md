@@ -15,14 +15,13 @@ and helpers, so the only thing that changes is the pattern.
 | 07 | `07_parallel_fanout.py` | One branch per must-have in parallel, then merge | LangGraph `Send` | ✓ |
 | 08 | `08_long_term_memory.py` | Preferences that survive across threads | LangGraph store | ✓ |
 | 09 | `09_strands_graph.py` | Agents in a drawn graph with a condition | Strands | `--dry` |
-| 10 | `10_crewai_flow.py` | Steps in code, a crew inside one step | CrewAI Flow | `--dry` |
-| 11 | `11_agentcore_strands.py` | A Strands agent behind AgentCore Runtime | AWS + Strands | real model |
-| 12 | `12_agentcore_langgraph.py` | The same entrypoint around LangGraph | AWS + LangGraph | ✓ |
+| 10 | `10_agentcore_strands.py` | A Strands agent behind AgentCore Runtime | AWS + Strands | real model |
+| 11 | `11_agentcore_langgraph.py` | The same entrypoint around LangGraph | AWS + LangGraph | ✓ |
 
 Plus, in the sessions: the loop by hand (`session1/01`), memory (`03`), human approval and
 resume (`04`), guardrails (`05`), a screening workflow (`06`), a supervisor team (`session2/07`),
 Strands agents-as-tools and Swarm (`08`), a CrewAI crew (`09`), tracing (`10`), evals (`11`),
-prompt injection (`12`).
+prompt injection (`12`). The same Session 1 steps in Strands and CrewAI: `frameworks/`.
 
 ## Which pattern when?
 
@@ -33,11 +32,11 @@ Unknown steps, one domain?                     → an agent (session1/02–05) �
 Long task worth reviewing first?               → 05 plan and execute
 Too many tools or too much context?            → a team (session2/07–09)
 Needs to remember across conversations?        → 08 long-term memory
-Going to production on AWS?                    → 11 / 12 AgentCore Runtime (any framework)
+Going to production on AWS?                    → 10 / 11 AgentCore Runtime (any framework)
 ```
 
 ## Run them all offline
 
 ```bash
-RAG_EMBEDDER=tfidf pytest -q tests/test_examples.py
+pytest -q tests/test_examples.py
 ```

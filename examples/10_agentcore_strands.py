@@ -2,7 +2,7 @@
 EXAMPLE 11 · Deploy-ready for AWS: a Strands agent behind Bedrock AgentCore Runtime.     AWS
 
     pip install bedrock-agentcore strands-agents
-    python examples/11_agentcore_strands.py          # serves http://localhost:8080 like AgentCore does
+    python examples/10_agentcore_strands.py          # serves http://localhost:8080 like AgentCore does
     curl -X POST localhost:8080/invocations -H 'Content-Type: application/json' \\
          -d '{"prompt": "Who knows Kafka?"}'
 
@@ -11,21 +11,19 @@ with the request payload. The same few lines wrap any framework: see 12 for Lang
 On AWS the RAG server is not a local process: host it as an MCP server (AgentCore Runtime or
 Gateway) and set RAG_MCP_URL + MCP_TOKEN. Deploying is the AWS session's topic.
 
-New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import pathlib
 import sys
 
-# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
+# Let Python find the shared "workshop" package in the repo root (docs/python-notes.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "session2"))
 
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from strands import Agent
 
 from workshop import prompts
+from workshop.strands_kit import cv_client, strands_model
 
-strands08 = __import__("08_strands_agents")
 app = BedrockAgentCoreApp()
 
 
@@ -35,8 +33,8 @@ def invoke(payload: dict) -> dict:
     prompt = str(payload.get("prompt", ""))[:2000]
     if not prompt:
         return {"error": "Send {'prompt': '...'}"}
-    with strands08.rag_client() as rag:                         # one MCP session per request
-        agent = Agent(model=strands08.strands_model(), tools=rag.list_tools_sync(),
+    with cv_client() as rag:                         # one MCP session per request
+        agent = Agent(model=strands_model(), tools=rag.list_tools_sync(),
                       system_prompt=prompts.HIRING_AGENT, callback_handler=None)
         result = agent(prompt)
     return {"answer": str(result)}
