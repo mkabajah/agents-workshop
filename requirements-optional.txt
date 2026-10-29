@@ -1,0 +1,3 @@
+# Session 2: the same team in other frameworks
+strands-agents[anthropic,openai,ollama]>=1.0
+crewai>=1.0
