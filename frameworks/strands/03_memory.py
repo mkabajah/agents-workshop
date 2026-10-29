@@ -1,5 +1,13 @@
 """
-STRANDS · STEP 3 · Memory: one session per conversation.
+STRANDS · STEP 3 · SHORT-TERM memory: one session per conversation.
+
+Short-term or long-term memory?
+    SHORT-TERM (this step)  = the conversation itself: the messages of ONE thread. It lets the agent
+                              understand "them" in a follow-up. A new thread starts empty.
+                              Strands: a session manager + session_id.
+    LONG-TERM (examples/08) = facts that outlive a conversation, e.g. "Dana prefers Haifa".
+                              Saved in a store, read and written through tools, shared by all of
+                              Dana's threads. (Strands: a memory tool or an external store; not shown here.)
 
 What it does
     Two recruiters talk to the agent. Dana asks two questions in the SAME conversation, so the second

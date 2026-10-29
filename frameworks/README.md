@@ -20,7 +20,7 @@ Every script also runs with `MODEL=fake`: no key, no network. That's a scripted 
 |---|---|---|---|
 | 02 · first agent | `create_agent(model, tools, system_prompt)` then `await agent.ainvoke(...)` | `Agent(model, tools, system_prompt)` then `agent("…")` | `Agent(role, goal, backstory, mcps)` + `Task` + `Crew(...).kickoff()` |
 | MCP tools | `langchain-mcp-adapters` · `load_mcp_tools(session)` | `MCPClient(...)` · `list_tools_sync()` | `mcps=[MCPServerStdio(...)]` on the Agent |
-| 03 · memory | checkpointer + `thread_id` | `FileSessionManager(session_id=…)` | keep the conversation yourself and pass it in (or long-term `Crew(memory=True)`) |
+| 03 · short-term memory | checkpointer + `thread_id` | `FileSessionManager(session_id=…)` | keep the conversation yourself and pass it in (or long-term `Crew(memory=True)`) |
 | 04 · limits | `ModelCallLimitMiddleware`, `ToolCallLimitMiddleware` | a hook that counts tool calls and cancels past the budget | `Agent(max_iter=12)` |
 | 04 · human approval | `HumanInTheLoopMiddleware` → `interrupt`, resume with `Command(resume=…)` | hook → `event.interrupt(...)`, resume with `agent([{"interruptResponse": …}])` | `@before_tool_call` hook asks, `return False` blocks |
 | 05 · your own rule | `@wrap_tool_call` middleware | `BeforeToolCallEvent` hook, `event.cancel_tool = "why"` | `@before_tool_call` / `@after_tool_call` hooks |

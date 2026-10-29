@@ -66,7 +66,7 @@ New to `async`/`await`, `async with` or decorators? Read [`docs/python-notes.md`
 |---|---|---|
 | 01 | `python session1/01_loop_by_hand.py "Who knows Kafka?"` | The agent loop in ~20 lines: the model **asks**, your code **acts** through MCP |
 | 02 | `python session1/02_first_agent.py` | `create_agent` + your MCP server + a local tool |
-| 03 | `python session1/03_memory.py` | Checkpointers and threads: "which of **them** lives in Haifa?" |
+| 03 | `python session1/03_memory.py` | **Short-term** memory: checkpointers and threads, "which of **them** lives in Haifa?" (long-term: `examples/08`) |
 | 04 | `python session1/04_middleware_hitl.py` | Limits, summarisation, **human approval** before every write; resume after a restart (`--sqlite`) |
 | 05 | `python session1/05_guardrail.py` | Your own middleware: *no action without evidence*, an audit log |
 | 06 | `python session1/06_langgraph_screening.py backend-engineer` | LangGraph: a workflow you can draw, with an agent in one node and `interrupt()` |

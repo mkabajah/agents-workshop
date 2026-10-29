@@ -1,9 +1,9 @@
 """
-EXAMPLE 08 · Long-term memory across conversations.       Pattern: a store + remember/recall tools
+EXAMPLE 08 · LONG-TERM memory across conversations (session1/03 is the SHORT-TERM kind).       Pattern: a store + remember/recall tools
 
     python examples/08_long_term_memory.py
 
-What it shows: thread memory (a checkpointer, session1/03) ends with the conversation. A STORE keeps facts
+What it shows: SHORT-TERM memory (a checkpointer + thread, session1/03) ends with the conversation. A STORE keeps facts
 across threads, per user: "Dana prefers candidates in Haifa". The agent reads and writes it through two
 tools, so the model decides what is worth remembering.
 

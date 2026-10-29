@@ -1,4 +1,12 @@
-"""SESSION 1 · STEP 3 · Memory: a checkpointer saves the conversation after every step, per thread.
+"""SESSION 1 · STEP 3 · SHORT-TERM memory: a checkpointer saves the conversation after every step, per thread.
+
+Short-term or long-term memory?
+    SHORT-TERM (this step)  = the conversation itself: the messages of ONE thread. It lets the agent
+                              understand "them" in a follow-up. A new thread starts empty.
+                              LangChain: a checkpointer + thread_id.
+    LONG-TERM (examples/08) = facts that outlive a conversation, e.g. "Dana prefers Haifa".
+                              Saved in a store, read and written through tools, shared by all of
+                              Dana's threads. LangChain: a store (InMemoryStore, Postgres…).
 
 What you learn
     How an agent remembers. A checkpointer stores the message list of each conversation ("thread")
@@ -43,7 +51,7 @@ async def run():
     """Ask three questions on two threads and show that only the same thread remembers."""
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
-        # checkpointer = memory: after every step it saves the messages of each thread.
+        # checkpointer = SHORT-TERM memory: after every step it saves the messages of each thread.
         # InMemorySaver keeps them in RAM (gone when the script ends); SQLite/Postgres keep them on disk.
         agent = create_agent(get_model(), tools, system_prompt=HIRING_AGENT, checkpointer=InMemorySaver())
 
@@ -64,6 +72,8 @@ async def run():
 
         state = await agent.aget_state(thread_a)                    # read back what the checkpointer saved for Dana
         print(f"\nThread A has {len(state.values['messages'])} messages saved. Thread B starts from zero.")
+        print("This is SHORT-TERM memory: it lives inside one thread. For facts that last across threads\n"
+              "(long-term memory), see examples/08_long_term_memory.py.")
         return state
 
 

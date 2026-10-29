@@ -1,5 +1,13 @@
 """
-CREWAI · STEP 3 · Memory: one conversation per recruiter.
+CREWAI · STEP 3 · SHORT-TERM memory: one conversation per recruiter.
+
+Short-term or long-term memory?
+    SHORT-TERM (this step)  = the conversation itself: the messages of ONE thread. It lets the agent
+                              understand "them" in a follow-up. A new thread starts empty.
+                              CrewAI: we keep the turns ourselves and pass them in.
+    LONG-TERM (examples/08) = facts that outlive a conversation, e.g. "Dana prefers Haifa".
+                              Saved in a store, read and written through tools, shared by all of
+                              Dana's threads. (CrewAI: Crew(memory=True), which needs an embedding model.)
 
 What it does
     Dana asks two questions in the SAME conversation, so the follow-up "which of THEM lives in Haifa?"
