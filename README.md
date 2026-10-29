@@ -2,7 +2,7 @@
 
 By **Mohammad Kabajah**. The follow-up to [rag-zero-to-agentic](https://github.com/mkabajah/rag-zero-to-agentic), but standalone.
 
-Two 2.5-hour sessions. You already built a **RAG over CVs** and exposed it as an **MCP server**
+You already built a **RAG over CVs** and exposed it as an **MCP server**
 that Claude Desktop, Claude Code or Kiro could call. In Claude Desktop, *Claude* was the agent.
 Here you build the agent yourself, then a team of agents: a hiring assistant that searches CVs,
 checks evidence, books interviews and asks a human before it acts.
