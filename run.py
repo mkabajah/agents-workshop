@@ -18,6 +18,8 @@ FOLDERS = {"langchain": ROOT / "session1", "strands": ROOT / "frameworks" / "str
 
 
 def find(framework: str, step: str) -> pathlib.Path:
+    """The script for one step of one framework.
+    e.g. ("strands", "2") → frameworks/strands/02_first_agent.py"""
     hits = sorted(FOLDERS[framework].glob(f"{step.zfill(2)}_*.py"))
     if not hits:
         sys.exit(f"No step {step} for {framework}. Try: python run.py --list")
@@ -25,6 +27,8 @@ def find(framework: str, step: str) -> pathlib.Path:
 
 
 def main(argv):
+    """Read the arguments, pick the script, and run it with the remaining arguments.
+    Returns the script's exit code, so tests can check that it worked."""
     if "--list" in argv or not argv:
         for name, folder in FOLDERS.items():
             print(f"{name:10}", " · ".join(p.stem for p in sorted(folder.glob("0[2-6]_*.py"))))
@@ -38,6 +42,8 @@ def main(argv):
         sys.exit(f"--framework must be one of {', '.join(FOLDERS)}")
     script = find(framework, argv[0])
     print(f"▶ {framework}: {script.relative_to(ROOT)}\n")
+    # Run the script as its own Python process (same Python, same arguments), exactly as if you had
+    # typed `python <script> …` yourself.
     return subprocess.call([sys.executable, str(script), *argv[1:]])
 
 

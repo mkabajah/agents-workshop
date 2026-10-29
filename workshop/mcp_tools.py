@@ -10,6 +10,9 @@ Code or Kiro did. The server offers four tools:
     get_cv(file_name)               one whole CV, contact details removed
     find_candidates(skill, city)    EVERY CV with that skill and/or city (not top-K)
     list_jobs()                     the open positions with must-haves
+
+Used by every LangChain/LangGraph script (session1/, session2/, examples/): `async with rag_tools() as tools`.
+(The Strands and CrewAI versions connect to the same server through strands_kit.py and crewai_kit.py.)
 """
 import contextlib
 import os
@@ -35,6 +38,7 @@ def server_config(cv_dir=None, extra_env=None) -> dict:
     if os.getenv("RAG_MCP_URL"):
         headers = {"Authorization": f"Bearer {os.environ['MCP_TOKEN']}"} if os.getenv("MCP_TOKEN") else {}
         return {"cv": {"transport": "streamable_http", "url": os.environ["RAG_MCP_URL"], "headers": headers}}
+    # The server is a separate process: it only sees the environment variables we hand it here.
     env = {k: os.environ[k] for k in PASSTHROUGH if k in os.environ}
     env["CV_DIR"] = str(cv_dir or config.CV_DIR)
     env.setdefault("FASTMCP_LOG_LEVEL", os.getenv("FASTMCP_LOG_LEVEL", "WARNING"))   # quieter server logs
@@ -55,11 +59,15 @@ def server_config(cv_dir=None, extra_env=None) -> dict:
 
 
 def client(cv_dir=None, extra_env=None) -> MultiServerMCPClient:
+    """An MCP client that knows how to reach the CV server (it does not start it yet).
+    cv_dir / extra_env let one script point the server at other CVs or settings (the injection demo)."""
     if not os.getenv("RAG_MCP_URL"):
         config.check()
     return MultiServerMCPClient(server_config(cv_dir, extra_env))
 
 
+# asynccontextmanager turns this generator into something you use with "async with": the code before
+# `yield` runs when the block starts (start the server), the code after it when the block ends (stop it).
 @contextlib.asynccontextmanager
 async def rag_tools(cv_dir=None, extra_env=None):
     """Start the RAG server ONCE and yield its tools as LangChain tools.

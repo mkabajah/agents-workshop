@@ -1,12 +1,24 @@
-"""
-SESSION 1 · STEP 3 · Memory: a checkpointer saves the conversation after every step, per thread.
+"""SESSION 1 · STEP 3 · Memory: a checkpointer saves the conversation after every step, per thread.
 
+What you learn
+    How an agent remembers. A checkpointer stores the message list of each conversation ("thread")
+    after every step. The thread_id you pass decides which conversation you continue.
+
+How to run
     python session1/03_memory.py
+    MODEL=fake python session1/03_memory.py                               # offline, no API key
 
-Turn 1 (thread A):  "Who knows Kafka?"
-Turn 2 (thread A):  "Which of them lives in Haifa?"      ← needs turn 1: "them" = the Kafka people
-Turn 3 (thread B):  "Which of them lives in Haifa?"      ← a new thread has no memory of turn 1
+What happens
+    Turn 1 (thread A):  "Who knows Kafka?"
+    Turn 2 (thread A):  "Which of them lives in Haifa?"      <- needs turn 1: "them" = the Kafka people
+    Turn 3 (thread B):  "Which of them lives in Haifa?"      <- a new thread has no memory of turn 1
 
+What you'll see
+    One trace per turn and how many messages each thread has stored. Thread A keeps growing;
+    thread B starts from zero.
+
+Comes after step 2: same agent, one extra argument (checkpointer). Step 4 uses the same
+checkpointer to pause the agent for human approval.
 Production: swap InMemorySaver for SqliteSaver / PostgresSaver so a conversation survives a restart.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
@@ -27,8 +39,8 @@ from workshop.prompts import HIRING_AGENT
 from workshop.show import banner, trace
 
 
-# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run():
+    """Ask three questions on two threads and show that only the same thread remembers."""
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         # checkpointer = memory: after every step it saves the messages of each thread.
@@ -42,7 +54,10 @@ async def run():
         for cfg, text in [(thread_a, "Who knows Kafka?"),
                           (thread_a, "Which of them lives in Haifa?"),
                           (thread_b, "Which of them lives in Haifa?")]:
+            # aget_state reads what the checkpointer has saved for this thread so far.
+            # We note the count so the trace below prints only the NEW messages of this turn.
             before = len((await agent.aget_state(cfg)).values.get("messages", []))
+            # We send ONLY the new question; the checkpointer adds the earlier messages of this thread.
             result = await agent.ainvoke({"messages": [{"role": "user", "content": text}]}, cfg)
             banner(f"thread {cfg['configurable']['thread_id']} · {len(result['messages'])} messages stored")
             trace(result["messages"], start=before)

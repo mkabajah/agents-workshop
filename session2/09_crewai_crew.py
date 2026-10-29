@@ -1,17 +1,23 @@
-"""
-SESSION 2 · STEP 9 · The same team in CrewAI: roles, tasks and a crew.
+"""SESSION 2 · STEP 9 · The same team in CrewAI: roles, tasks and a crew.
 
+What you learn
+    A third way to describe the same team. CrewAI thinks in people and assignments: agents have a
+    role, goal and backstory (together, their system prompt); tasks have a description and the
+    expected output; a crew runs the tasks under a process (sequential here: source, then screen).
+    MCP: the `mcps=[...]` field on an Agent connects the CV server to that agent.
+    CrewAI is synchronous: crew.kickoff(...) just returns the result.
+
+How to run
     pip install -r requirements-optional.txt
     python session2/09_crewai_crew.py backend-engineer
     python session2/09_crewai_crew.py backend-engineer --dry      # build only, no model call
 
-CrewAI thinks in a team and assignments: agents have a role, goal and backstory; tasks have
-an expected output; a crew runs the tasks under a process (sequential here).
-MCP: the `mcps=[...]` field on an Agent connects your RAG server to that agent.
+What you'll see
+    CrewAI's own log of each agent's thoughts and tool calls (verbose=True), then the final table:
+    candidate, must-haves met with evidence, gap or risk, and the top 3.
 
 Model: CREW_LLM (a LiteLLM name, e.g. "anthropic/claude-sonnet-4-6", "ollama/qwen2.5:7b",
-"groq/openai/gpt-oss-20b"), or derived from MODEL ("anthropic:x" → "anthropic/x").
-
+"groq/openai/gpt-oss-20b"), or derived from MODEL ("anthropic:x" -> "anthropic/x"), or MODEL=fake.
 """
 import json
 import pathlib
@@ -29,6 +35,7 @@ from workshop.jobs import job_post
 
 
 def build():
+    """Two agents and two tasks, run one after the other; the second task sees the first's result."""
     rag = cv_server()                                                              # the CV MCP server
     llm = crew_llm()
 
@@ -39,12 +46,13 @@ def build():
                      backstory="You only trust what a CV shows, and you quote it." + RULES,
                      mcps=[rag], llm=llm)
 
+    # {job} is filled in at kickoff(inputs={"job": ...}). expected_output tells the agent when it is done.
     source = Task(description="Job post:\n{job}\n\nFind every candidate who meets each must-have. "
                               "Use find_candidates once per skill.",
                   expected_output="CV file names, each with the must-haves it meets", agent=sourcer)
     screen = Task(description="Read the CVs of the candidates found (get_cv). Check each must-have with a short quote.",
                   expected_output="A table: candidate · must-haves met with evidence · gap or risk; then the top 3 and why",
-                  agent=screener, context=[source])
+                  agent=screener, context=[source])               # context: gets the sourcer's output
     return Crew(agents=[sourcer, screener], tasks=[source, screen], process=Process.sequential, verbose=True)
 
 

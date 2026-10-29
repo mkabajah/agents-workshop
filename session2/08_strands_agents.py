@@ -1,16 +1,25 @@
-"""
-SESSION 2 · STEP 8 · The same team in Strands Agents (AWS, open source).
+"""SESSION 2 · STEP 8 · The same team in Strands Agents (AWS, open source).
 
+What you learn
+    The team from step 7 in a second framework, to see what changes and what does not. In Strands an
+    Agent is a model + tools + a prompt, and the model plans the steps ("model-driven"). An Agent can
+    be passed as a tool to another Agent, which gives you the supervisor pattern in one line.
+    Strands is synchronous: team("question") just returns the result, no async/await.
+
+How to run
     pip install -r requirements-optional.txt
     python session2/08_strands_agents.py "Shortlist 3 candidates for the backend job"          # agents as tools
     python session2/08_strands_agents.py --swarm "Shortlist 3 candidates for the backend job"  # a swarm
-    python session2/08_strands_agents.py --dry                                                  # build only, no model call
+    python session2/08_strands_agents.py --dry          # build the team only, no model call
 
-Strands is "model-driven": an Agent is a model + tools + a prompt, and the model plans the steps.
-Same MCP server, different client: strands.tools.mcp.MCPClient.
+    Agents as tools: the lead decides who works and gets the answers back (like step 7).
+    Swarm: no boss; agents hand the task to each other with a handoff tool and share the context.
 
-Model: taken from MODEL (anthropic:…, openai:…, ollama:…) or MODEL=bedrock for Strands' default.
+What you'll see
+    The MCP tools Strands found, then the team's answer (and with --swarm, the path of handoffs).
 
+Same MCP server, different client: strands.tools.mcp.MCPClient (see workshop/strands_kit.py).
+Model: taken from MODEL (anthropic:…, openai:…, ollama:…, fake), or Strands' default on Amazon Bedrock.
 """
 import os
 import pathlib
@@ -27,8 +36,11 @@ from workshop.strands_kit import cv_client, strands_model
 
 
 def build(rag_tools, swarm=False):
+    """Make the sourcer and screener, then join them as a lead-with-tools or as a swarm."""
     by_name = {t.tool_name: t for t in rag_tools}
     model = strands_model()
+    # name + description matter: when an Agent is used as a tool, they become the tool's name
+    # and the description the lead's model reads.
     sourcer = Agent(name="sourcer", description="Finds EVERY candidate who has given must-haves.",
                     model=model, system_prompt=prompts.SOURCER,
                     tools=[by_name["find_candidates"], by_name["search_cvs"]])
@@ -53,7 +65,7 @@ if __name__ == "__main__":
         tools = rag.list_tools_sync()
         print("MCP tools:", [t.tool_name for t in tools])
         if dry:
-            os.environ.setdefault("AWS_REGION", "us-east-1")
+            os.environ.setdefault("AWS_REGION", "us-east-1")   # Strands' default model needs a region set
             team = build(tools, use_swarm)
             print("Built:", type(team).__name__)
             sys.exit(0)

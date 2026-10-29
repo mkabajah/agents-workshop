@@ -1,17 +1,26 @@
-"""
-SESSION 1 · STEP 1 · The agent loop by hand: no agent framework, just a chat model and MCP.
+"""SESSION 1 · STEP 1 · The agent loop by hand: no agent framework, just a chat model and MCP.
 
+What you learn
+    What an "agent" really is: a loop. The model never runs anything itself; it only ASKS for a
+    tool call, and YOUR code runs the tool and hands the result back. Every framework you meet later
+    (LangChain, Strands, CrewAI, the OpenAI and Claude SDKs) is this loop plus extras.
+
+How to run
     python session1/01_loop_by_hand.py "Who knows Kafka?"
+    MODEL=fake python session1/01_loop_by_hand.py "Who knows Kafka?"     # offline, no API key
 
-What you see:
-  1. We start YOUR RAG MCP server and ask it for its tools      (MCP: tools/list)
-  2. We send the question + the tool schemas to the model
-  3. The model either answers, or ASKS for a tool call           (it never runs anything itself)
-  4. OUR code runs the tool through MCP                         (MCP: tools/call)
-  5. The result goes back into the messages. Repeat until the model stops asking.
+What happens, step by step
+  1. We start the CV MCP server and ask it for its tools      (MCP: tools/list)
+  2. We send the question + the tool descriptions to the model
+  3. The model either answers, or ASKS for a tool call         (it never runs anything itself)
+  4. OUR code runs the tool through MCP                        (MCP: tools/call)
+  5. The result goes back into the message list. Repeat until the model stops asking.
 
-Every agent framework (LangChain, Strands, CrewAI, the OpenAI and Claude SDKs) is this loop
-plus memory, limits, streaming, hooks and tracing.
+What you'll see
+    "Tools from your MCP server: [...]", then a trace: the question (user), each tool request
+    (calls), each tool result, and the final answer.
+
+Comes before: nothing. This is the foundation. Step 2 replaces this loop with one call.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
@@ -34,9 +43,13 @@ from workshop.show import banner, trace
 MAX_STEPS = 8                                            # never `while True`: an agent needs a budget
 
 
-# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(question: str):
+    """Run the agent loop for one question and return the full list of messages.
+
+    It is async because talking to the MCP server and to the model means waiting;
+    every wait is marked with await (docs/python-notes.md §1)."""
     config.check()
+    # The same server settings Claude Desktop uses: which program to start, with which arguments.
     cv = mcp_tools.server_config()["cv"]
     server = StdioServerParameters(command=cv["command"], args=cv["args"], env=cv["env"], cwd=cv["cwd"])
 
@@ -51,6 +64,8 @@ async def run(question: str):
         print("Tools from your MCP server:", [t.name for t in listed.tools])
 
         model = get_model().bind_tools(schemas)                            # ② the model sees the schemas
+        # The message list IS the agent's working memory: rules first, then the question.
+        # Every model call re-reads the whole list, so it grows with each step.
         messages = [SystemMessage(HIRING_AGENT), HumanMessage(question)]
 
         for step in range(1, MAX_STEPS + 1):
@@ -58,10 +73,13 @@ async def run(question: str):
             messages.append(reply)
             if not reply.tool_calls:                                       # no tool call → done
                 break
+            # A tool call looks like {"name": "find_candidates", "args": {"skill": "kafka"}, "id": "call_1"}.
+            # The model may ask for several at once; we run each one.
             for call in reply.tool_calls:
                 result = await mcp.call_tool(call["name"], call["args"])  # ④ OUR code acts (tools/call)
                 # The answer comes back as a list of content blocks; we join their text.
                 text = "\n".join(c.text for c in result.content if getattr(c, "text", None))
+                # tool_call_id links this result to the request it answers; models require it.
                 messages.append(ToolMessage(text, tool_call_id=call["id"], name=call["name"]))   # ⑤ observe
         else:                                                              # for…else: runs only if we never hit "break"
             print(f"Stopped after {MAX_STEPS} steps: step limit.")

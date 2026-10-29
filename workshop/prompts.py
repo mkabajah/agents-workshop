@@ -1,4 +1,9 @@
-"""The system prompts, in one place so students can compare versions."""
+"""
+PROMPTS · the system prompts, in one place so students can compare versions.
+
+A system prompt is the standing instruction the model reads before every conversation: its job,
+its tools, its rules. Every framework version imports these same texts, so only the code differs.
+"""
 
 HIRING_AGENT = """You are a careful recruiting assistant for a hiring team.
 

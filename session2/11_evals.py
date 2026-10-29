@@ -1,16 +1,33 @@
-"""
-SESSION 2 · STEP 11 · Evaluation: a small dataset beats a gut feeling.
+"""SESSION 2 · STEP 11 · Evaluation: a small dataset beats a gut feeling.
 
+What you learn
+    How to measure an agent instead of trying three questions by hand. data/hiring_eval.jsonl holds
+    10 questions, each with what a good run must do: which tool to call, which CVs to name, whether to
+    refuse. We run the agent on all of them and score each run.
+
+How to run
     python session2/11_evals.py                 # run the agent on data/hiring_eval.jsonl, print a scoreboard
     python session2/11_evals.py --judge         # + LLM-as-judge: is every claim supported by the tool results?
     python session2/11_evals.py --langsmith     # also upload the dataset and the run to LangSmith
+    MODEL=fake python session2/11_evals.py      # offline, no API key
 
 Three kinds of checks:
   PATH     (plain code)    did it call the right tool? under the step budget?
   ANSWER   (plain code)    does the answer name the expected CVs? does it refuse when nothing fits?
   JUDGE    (another model) is every claim grounded in what the tools returned?
 
+The metrics, in plain words
+  recall      of the CVs it SHOULD name, how many did it name?           (missed candidates)
+  precision   of the CVs it DID name, how many were right?               (wrong candidates)
+  refusal     when no CV fits, did it say so instead of inventing one?
+  grounded    the judge model's verdict: no claim without evidence
+
+What you'll see
+    A dot per question, then a scoreboard: one row per question with ✓ / ✗ or a number per check,
+    and a summary line: how many passed, mean recall, total tool calls and seconds.
+
 Run it before and after every change to a prompt, a tool description, the model or the RAG.
+Comes after step 10: tracing shows ONE run in detail; evals compare MANY runs at once.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
@@ -36,16 +53,18 @@ from workshop.prompts import HIRING_AGENT
 from workshop.show import banner, content_text
 
 DATA = pathlib.Path(__file__).resolve().parents[1] / "data" / "hiring_eval.jsonl"
+# Phrases that count as "I could not find anyone" when an example expects a refusal.
 REFUSAL = re.compile(r"\b(no (cv|candidate)|none of the|not (found|in the|mentioned)|don.?t know|no one|nobody|no matching)\b", re.I)
 
 
 class Verdict(BaseModel):
+    """The judge must answer in exactly this shape (structured output), so we can read it in code."""
     grounded: bool
     reason: str
 
 
-# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run_agent(agent, question):
+    """Ask one question; keep the answer, the tools it called, the tool results and the time taken."""
     start = time.perf_counter()
     out = await agent.ainvoke({"messages": [{"role": "user", "content": question}]})
     msgs = out["messages"]
@@ -56,6 +75,7 @@ async def run_agent(agent, question):
 
 
 def score(ex, out):
+    """Plain-code checks for one run. None = this check does not apply to this example."""
     answer = out["answer"].lower()
     found = [cv for cv in ex["expect_cvs"] if cv in answer]
     named = set(re.findall(r"cand-\d{3}(?:-\d{4})?", answer))          # the practice CVs' ids
@@ -63,12 +83,14 @@ def score(ex, out):
         "right_tool": any(t in out["tools"] for t in ex["must_call"]),
         "in_budget": len(out["tools"]) <= ex.get("max_tool_calls", 5),
         "recall": len(found) / len(ex["expect_cvs"]) if ex["expect_cvs"] else None,
+        # precision = right names / all names it gave; recall (above) = right names / names it should give.
         "precision": len(named & set(ex["expect_cvs"])) / len(named) if named and ex["expect_cvs"] else None,
         "refused_ok": bool(REFUSAL.search(answer)) if ex.get("refuse") else None,
     }
 
 
 async def judge(ex, out):
+    """LLM-as-judge: a second (cheaper) model reads the tool results and the answer and grades grounding."""
     model = get_model(config.SMALL_MODEL).with_structured_output(Verdict)
     return await model.ainvoke(
         "You grade a recruiting assistant. Is EVERY claim about a candidate in the ANSWER supported by the "
@@ -77,10 +99,12 @@ async def judge(ex, out):
 
 
 async def main(use_judge=False, use_langsmith=False):
+    """Run every example, score it, print the scoreboard, and optionally upload to LangSmith."""
     examples = [json.loads(line) for line in DATA.read_text().splitlines() if line.strip()]
     rows = []
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
+        # One agent, no checkpointer: every question starts a fresh conversation, so runs don't leak.
         agent = create_agent(get_model(), tools, system_prompt=HIRING_AGENT)
         for ex in examples:
             out = await run_agent(agent, ex["question"])
@@ -98,6 +122,7 @@ async def main(use_judge=False, use_langsmith=False):
         print(f"{ex['id']:<5}{ex['type']:<12}{mark(s['right_tool']):>6}{mark(s['in_budget']):>8}{mark(s['recall']):>8}{mark(s['precision']):>7}"
               f"{mark(s['refused_ok']):>8}{mark(s.get('grounded')):>7}{len(out['tools']):>7}{out['seconds']:>7.1f}")
     recall = [s["recall"] for _, _, s in rows if s["recall"] is not None]
+    # A row passes when every check is True, "not applicable" (None), or a perfect 1.0 score.
     passed = sum(all(v in (True, None) or (isinstance(v, float) and v == 1.0) for v in s.values()) for _, _, s in rows)
     print(f"\nPassed {passed}/{len(rows)} · mean recall {sum(recall) / len(recall):.2f} · "
           f"tool calls {sum(len(o['tools']) for _, o, _ in rows)} · {sum(o['seconds'] for _, o, _ in rows):.0f}s")
@@ -119,6 +144,7 @@ async def upload(examples):
     async with rag_tools() as tools:
         agent = create_agent(get_model(), tools, system_prompt=HIRING_AGENT)
 
+        # LangSmith calls target() for each dataset example and gives its output to the evaluators below.
         async def target(inputs):
             return await run_agent(agent, inputs["question"])
 

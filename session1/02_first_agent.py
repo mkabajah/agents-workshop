@@ -1,10 +1,19 @@
-"""
-SESSION 1 · STEP 2 · The same loop with LangChain 1.x: create_agent + your MCP server.
+"""SESSION 1 · STEP 2 · The same loop with LangChain 1.x: create_agent + your MCP server.
 
+What you learn
+    create_agent(model, tools, system_prompt) builds the whole loop from step 1 for you. Under the
+    hood it is a small LangGraph graph with two nodes, "model" and "tools", that loop until the model
+    stops asking for tools. MCP tools and plain Python tools go into the same list.
+
+How to run
     python session1/02_first_agent.py "Which candidates know Kafka and Docker? Check the evidence."
+    MODEL=fake python session1/02_first_agent.py                          # offline, no API key
 
-create_agent(model, tools, system_prompt) builds the loop from step 1 for you, as a LangGraph
-graph with two nodes (model, tools). The tools: your 4 RAG tools over MCP + one local tool.
+What you'll see
+    A line like "3 tool call(s): ['find_candidates', 'find_candidates', 'get_cv']", then the trace
+    of the conversation and the answer.
+
+Comes after step 1: same behaviour, twenty lines become one call. Step 3 adds memory.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
@@ -24,8 +33,8 @@ from workshop.prompts import HIRING_AGENT
 from workshop.show import banner, trace
 
 
-# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(question: str):
+    """Build an agent with the CV tools, ask it one question, print what it did."""
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:                      # search_cvs, get_cv, find_candidates, list_jobs
         agent = create_agent(

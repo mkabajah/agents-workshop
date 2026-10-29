@@ -1,16 +1,30 @@
 """
 STRANDS · STEP 3 · Memory: one session per conversation.
-Same as session1/03_memory.py (LangChain threads + a checkpointer).
 
+What it does
+    Two recruiters talk to the agent. Dana asks two questions in the SAME conversation, so the second
+    question ("which of THEM lives in Haifa?") makes sense. Omar asks the same follow-up in a NEW
+    conversation, so the agent has no idea who "them" is.
+
+How to run
+    python run.py 03 --framework strands
     python frameworks/strands/03_memory.py
 
-In Strands an Agent object remembers its own conversation (agent.messages). To keep a
-conversation across restarts, give it a session manager: here a FileSessionManager that saves
-each session as files under outbox/sessions/. One session_id = one conversation (= a LangGraph thread).
+What you'll see
+    Dana's session has more messages than Omar's. The sessions are saved as files under
+    outbox/sessions/: run the script again and Dana's conversation continues where it stopped.
+
+Same thing in LangChain: session1/03_memory.py (a checkpointer + one thread_id per conversation).
+
+How memory works in Strands
+    An Agent object remembers its own conversation in agent.messages, but only while the program runs.
+    A session manager saves those messages somewhere and loads them back next time. Here a
+    FileSessionManager writes them to disk. One session_id = one conversation (= a LangGraph thread).
 """
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package that lives two folders up (the repo root).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 
 from strands import Agent
@@ -20,16 +34,18 @@ from workshop import config
 from workshop.prompts import HIRING_AGENT
 from workshop.strands_kit import cv_client, strands_model
 
-SESSIONS = config.OUTBOX / "sessions"
+SESSIONS = config.OUTBOX / "sessions"            # where the saved conversations live
 
 
 def agent_for(session_id: str, tools) -> Agent:
     """One agent per conversation. The session manager loads earlier messages and saves new ones."""
     return Agent(model=strands_model(), tools=tools, system_prompt=HIRING_AGENT, callback_handler=None,
+                 # Same session_id next time = the same conversation, loaded back from disk.
                  session_manager=FileSessionManager(session_id=session_id, storage_dir=str(SESSIONS)))
 
 
 def run():
+    """Show that a follow-up question works inside one session and fails in a new one."""
     with cv_client() as cv:
         tools = cv.list_tools_sync()
         dana = agent_for("dana", tools)
@@ -42,5 +58,6 @@ def run():
         return len(dana.messages), len(omar.messages)
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     run()

@@ -97,6 +97,7 @@ See [`examples/README.md`](examples/README.md).
 
 | File | What |
 |---|---|
+| [`docs/code-tour.md`](docs/code-tour.md) | how the code fits together: one run, file by file, and where to start reading |
 | [`docs/python-notes.md`](docs/python-notes.md) | `async`/`await`, `async with`, decorators… in plain words |
 | [`frameworks/README.md`](frameworks/README.md) | the three frameworks side by side, and which one to pick |
 | [`docs/session1-lab.md`](docs/session1-lab.md) · [`docs/session2-capstone.md`](docs/session2-capstone.md) | the lab and the capstone brief + rubric |

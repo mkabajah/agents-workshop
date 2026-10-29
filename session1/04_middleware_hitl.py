@@ -1,14 +1,29 @@
-"""
-SESSION 1 · STEP 4 · Middleware: limits, summarisation and HUMAN APPROVAL before any write.
+"""SESSION 1 · STEP 4 · Middleware: limits, summarisation and HUMAN APPROVAL before any write.
 
+What you learn
+    Middleware = rules that run at fixed moments of the agent loop (before/after a model call,
+    around a tool call), without changing the agent itself. Here: a summary of long chats, a limit on
+    model calls, a limit on get_cv, and a pause for a person before every write tool.
+
+How to run
     python session1/04_middleware_hitl.py "Find a Kafka candidate and book an interview for the backend job"
-    python session1/04_middleware_hitl.py --sqlite ...          # pause, quit, resume later:
-    python session1/04_middleware_hitl.py --resume <thread-id>  #   (needs the same --sqlite file)
-    python session1/04_middleware_hitl.py --auto ...            # approve everything (tests)
+    python session1/04_middleware_hitl.py --auto ...                    # approve everything (tests)
+    python session1/04_middleware_hitl.py --sqlite hire.db ...          # pause, press Ctrl+C, then later:
+    python session1/04_middleware_hitl.py --sqlite hire.db --resume <thread-id>
+    MODEL=fake python session1/04_middleware_hitl.py --auto             # offline, no API key
 
-The agent now has action tools (schedule_interview, send_email). Reads run freely; every write
-stops the graph and waits for a person: approve, edit the arguments, or reject with a reason.
-Look in outbox/ afterwards to see what really "happened".
+What you'll see
+    The thread_id, then a pause like "The agent wants to run schedule_interview({...})" and a prompt:
+    [a]pprove, [e]dit the arguments, or [r]eject with a reason. Afterwards, the trace, and one new
+    line in outbox/interviews.jsonl if you approved. Rejected = nothing written; the model reads why.
+
+How it works
+    The middleware stops the graph BEFORE the tool runs and saves the state in the checkpointer.
+    ainvoke returns early with "__interrupt__". We ask a person, then call ainvoke again with
+    Command(resume=...) on the same thread_id, and the run continues exactly where it stopped.
+
+Comes after step 3: the checkpointer from step 3 is what makes the pause possible. Step 5 shows how
+to write your own middleware.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
@@ -36,6 +51,10 @@ from workshop.show import banner, trace
 
 
 def build_agent(tools, checkpointer):
+    """The hiring agent with read + write tools and four middleware rules.
+
+    Middleware runs in list order on the way in to the model and in reverse order on the way out,
+    like layers of an onion. The approval rule is last so it sees the final tool call."""
     return create_agent(
         model=get_model(),
         tools=tools + actions.ALL,
@@ -47,6 +66,7 @@ def build_agent(tools, checkpointer):
             ModelCallLimitMiddleware(run_limit=12),                  # runaway loops stop here
             ToolCallLimitMiddleware(tool_name="get_cv", run_limit=6),  # reading every CV costs tokens
             HumanInTheLoopMiddleware(interrupt_on={                  # writes wait for a human
+                # Per tool: which answers a person may give. True = approve/reject only.
                 "schedule_interview": {"allowed_decisions": ["approve", "edit", "reject"]},
                 "send_email": {"allowed_decisions": ["approve", "edit", "reject"]},
                 "save_shortlist": True,
@@ -57,7 +77,11 @@ def build_agent(tools, checkpointer):
 
 
 def ask_human(request: dict, auto: bool) -> list[dict]:
-    """One decision per pending action. In a product this is a button in Slack or your admin UI."""
+    """Ask a person about each paused tool call and return one decision per call.
+
+    In a product this is a button in Slack or your admin page. The decision shapes are fixed by
+    LangChain: {"type": "approve"}, {"type": "edit", "edited_action": ...},
+    {"type": "reject", "message": ...}."""
     decisions = []
     for action in request["action_requests"]:
         print(f"\n⏸  The agent wants to run {action['name']}({json.dumps(action['args'], ensure_ascii=False)})")
@@ -72,11 +96,10 @@ def ask_human(request: dict, auto: bool) -> list[dict]:
     return decisions
 
 
-# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def drive(agent, payload, cfg, auto):
+    """Run until the agent finishes; every interrupt goes to a person, then we resume."""
     # The approval loop. When the middleware pauses the agent, ainvoke RETURNS early with "__interrupt__".
     # We ask a person, then call ainvoke again with Command(resume=...) on the SAME thread to continue.
-    """Run until the agent finishes; every interrupt goes to a human, then we resume."""
     result = await agent.ainvoke(payload, cfg)
     while result.get("__interrupt__"):
         request = result["__interrupt__"][0].value                   # {"action_requests": [...], ...}
@@ -85,6 +108,8 @@ async def drive(agent, payload, cfg, auto):
 
 
 async def run(question, auto=False, sqlite=None, resume=None):
+    """Start (or resume) one hiring request on its own thread and print what happened."""
+    # A new thread_id for each run, unless we resume an old one. It is the key the checkpointer uses.
     thread = resume or f"hire-{uuid.uuid4().hex[:6]}"
     cfg = {"configurable": {"thread_id": thread}}
     print(f"thread_id = {thread}   (Ctrl+C at a prompt, then --sqlite FILE --resume {thread})")
@@ -106,8 +131,9 @@ async def run(question, auto=False, sqlite=None, resume=None):
 
 
 async def _go(agent, question, cfg, auto, resume):
+    """Pick the first input: a new question, or the human decision for a run paused earlier."""
     if resume:                                                       # continue a pause from an earlier run
-        state = await agent.aget_state(cfg)
+        state = await agent.aget_state(cfg)                          # load the paused run from SQLite
         if not state.interrupts:
             sys.exit("Nothing to resume on that thread.")
         payload = Command(resume={"decisions": ask_human(state.interrupts[0].value, auto)})

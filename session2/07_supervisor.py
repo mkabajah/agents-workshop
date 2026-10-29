@@ -1,15 +1,25 @@
-"""
-SESSION 2 · STEP 7 · Multi-agent with LangChain: a lead agent whose tools are other agents.
+"""SESSION 2 · STEP 7 · Multi-agent with LangChain: a lead agent whose tools are other agents.
 
+What you learn
+    The "supervisor" pattern. Each specialist is a normal agent with its own tools and prompt. We wrap
+    each one as a @tool, so to the lead, "ask the screener" looks exactly like calling get_cv.
+
+How to run
     python session2/07_supervisor.py "Shortlist 3 candidates for the backend job and book an interview with the best one"
-    python session2/07_supervisor.py --auto ...      # approve every delegation to the coordinator
+    python session2/07_supervisor.py --auto ...      # approve every delegation to the coordinator (tests)
+    MODEL=fake python session2/07_supervisor.py --auto                  # offline, no API key
 
     lead ── sourcer      (find_candidates, search_cvs)     who has each must-have?
          ├─ screener     (get_cv, search_cvs)               is the evidence real? risks?
-         └─ coordinator  (get_free_slots, schedule_interview, send_email)   ← human approves
+         └─ coordinator  (get_free_slots, schedule_interview, send_email)   <- a person approves first
+
+What you'll see
+    A pause before the lead hands work to the coordinator ("approve? [y/n]"), then the trace of what
+    the LEAD saw: its own calls and each specialist's short report, not the specialists' inner steps.
 
 Why split: each specialist sees only ITS tools and ITS context. The raw CV text the screener
 reads never reaches the lead: only the screener's short report does.
+Comes after session 1: the same create_agent, middleware and approvals, now one level up.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
@@ -35,17 +45,21 @@ from workshop.show import banner, content_text, trace
 
 
 def build(tools):
-    t = {x.name: x for x in tools}
-    limit = [ModelCallLimitMiddleware(run_limit=10)]
+    """Create the three specialists, wrap each one as a tool, and return the lead agent."""
+    t = {x.name: x for x in tools}                                # MCP tools by name
+    limit = [ModelCallLimitMiddleware(run_limit=10)]              # every specialist gets a step budget
     sourcer = create_agent(get_model(), [t["find_candidates"], t["search_cvs"]], system_prompt=prompts.SOURCER, middleware=limit)
     screener = create_agent(get_model(), [t["get_cv"], t["search_cvs"]], system_prompt=prompts.SCREENER, middleware=limit)
     coordinator = create_agent(get_model(), [actions.get_free_slots, actions.schedule_interview, actions.send_email],
                                system_prompt=prompts.COORDINATOR, middleware=limit)
 
     async def delegate(agent, task: str) -> str:
+        """Run one specialist on a fresh conversation and return only its final answer."""
         out = await agent.ainvoke({"messages": [{"role": "user", "content": task}]})
         return content_text(out["messages"][-1])            # only the final report goes back to the lead
 
+    # @tool turns a function into a tool. The NAME is what the lead calls, the DOCSTRING is the
+    # description the lead's model reads to decide when to use it, so write it for the model.
     @tool("sourcer")
     async def call_sourcer(task: str) -> str:
         """Find EVERY candidate who has given skills or must-haves. Give the must-haves explicitly."""
@@ -65,19 +79,20 @@ def build(tools):
         get_model(),
         tools=[t["list_jobs"], call_sourcer, call_screener, call_coordinator],
         system_prompt=prompts.LEAD,
-        checkpointer=InMemorySaver(),
+        checkpointer=InMemorySaver(),                             # needed so the approval can pause
         middleware=[ModelCallLimitMiddleware(run_limit=12),
                     HumanInTheLoopMiddleware(interrupt_on={"coordinator": True})],   # approve the delegation
     )
 
 
-# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(question: str, auto=False):
+    """Give the lead one hiring request; ask a person before each coordinator delegation."""
     cfg = {"configurable": {"thread_id": f"lead-{uuid.uuid4().hex[:6]}"}}
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         lead = build(tools)
         result = await lead.ainvoke({"messages": [{"role": "user", "content": question}]}, cfg)
+        # Same approval loop as session1/04: paused -> ask -> resume the same thread.
         while result.get("__interrupt__"):
             decisions = []
             for action in result["__interrupt__"][0].value["action_requests"]:

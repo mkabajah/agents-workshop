@@ -3,10 +3,16 @@ EXAMPLE 05 · Plan, then execute.        Pattern: planner + executor (good for l
 
     python examples/05_plan_and_execute.py "Compare the Kafka candidates for the backend job"
 
-1. A planner writes a short numbered plan (no tools).
+What it shows:
+1. A planner writes a short numbered plan (one model call, no tools).
 2. An executor agent runs each step with the tools, carrying the earlier results forward.
 3. A final call writes the answer from the step results.
-Why: a visible plan is easy to review (even to approve) and keeps long tasks on track.
+
+    task ─▶ planner ─▶ [step 1, step 2, step 3] ─▶ executor runs each ─▶ final answer
+
+When you'd use it: long tasks a person might want to review (or approve) before they run, and tasks
+where a single agent tends to lose track. A visible plan is easy to read, test and log.
+What you'll see: the plan, a check mark per step, then the answer.
 With MODEL=fake the plan is a fixed template.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
@@ -30,6 +36,7 @@ from workshop.show import banner, content_text, short
 
 # async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def make_plan(task: str) -> list[str]:
+    """Ask the model for at most 4 short steps (a fixed plan with the fake model)."""
     if config.MODEL == "fake":
         return ["Read the backend job's must-haves with list_jobs",
                 "Find every candidate who knows Kafka",
@@ -37,10 +44,12 @@ async def make_plan(task: str) -> list[str]:
     reply = await get_model().ainvoke(
         "Write a plan of at most 4 numbered steps for this recruiting task. One tool-sized action per "
         f"step (list_jobs, find_candidates, search_cvs, get_cv). No prose.\n\nTask: {task}")
+    # Strip the "1." / "2)" numbering from each line and keep at most 4 steps.
     return [re.sub(r"^\s*\d+[.)]\s*", "", line).strip() for line in content_text(reply).splitlines() if line.strip()][:4]
 
 
 async def run(task: str):
+    """Plan, run every step with a tool-using agent, then write the final answer."""
     plan = await make_plan(task)
     banner("Plan")
     for i, step in enumerate(plan, 1):
@@ -50,6 +59,7 @@ async def run(task: str):
     async with rag_tools() as tools:
         executor = create_agent(get_model(), tools, system_prompt=HIRING_AGENT)
         for i, step in enumerate(plan, 1):
+            # Each step is a NEW conversation; we pass only the last 3 step results, to keep context small.
             context = "\n".join(notes[-3:])
             out = await executor.ainvoke({"messages": [{"role": "user",
                                           "content": f"Earlier results:\n{context}\n\nDo step {i}: {step}"}]})

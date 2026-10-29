@@ -3,9 +3,17 @@ EXAMPLE 06 · Reflection: a writer and a critic loop until it's good.   Pattern:
 
     python examples/06_reflection.py cand-006.md backend-engineer
 
-The writer drafts an interview invitation from the CV evidence; the critic checks it against a
-rubric (specific, fair, short, no promises, no personal data) and returns PASS or fixes.
-At most 3 rounds: a loop always needs a budget. Built as a 2-node LangGraph with a cycle.
+What it shows: the writer drafts an interview invitation from the CV; the critic checks it against a
+rubric (specific, fair, short, no promises, no personal data) and returns PASS or a list of fixes.
+The writer revises until PASS, at most 3 rounds: a loop always needs a budget.
+
+    START ─▶ write ─▶ critique ─┬─ PASS or 3 rounds ─▶ END
+               ▲                └─ fixes ─────────────┐
+               └──────────────────────────────────────┘
+
+When you'd use it: any text a person will receive (emails, summaries, job posts) where quality rules
+can be written down. Built as a 2-node LangGraph with a cycle.
+What you'll see: how many rounds it took, the critic's last word, and the final email.
 
 New to async/await, "async with" or decorators? Read docs/python-notes.md (5 minutes).
 """
@@ -30,6 +38,8 @@ MAX_ROUNDS = 3
 
 
 class S(TypedDict, total=False):
+    """The shared state: the CV, the job, the current draft, the critic's feedback and the round count."""
+
     cv_text: str
     job: str
     draft: str
@@ -39,6 +49,7 @@ class S(TypedDict, total=False):
 
 # async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def write(s: S):
+    """Write a first draft, or revise the previous one using the critic's feedback."""
     prompt = (f"Write a short interview invitation for the {s['job']} role, based on this CV:\n{s['cv_text'][:2500]}\n"
               + (f"\nRevise using this feedback: {s['feedback']}\nPrevious draft:\n{s['draft']}" if s.get("feedback") else ""))
     reply = await get_model().ainvoke(prompt)
@@ -46,6 +57,7 @@ async def write(s: S):
 
 
 async def critique(s: S):
+    """Check the draft against the rubric: reply PASS, or one line of fixes."""
     if config.MODEL == "fake":                                     # the scripted model can't judge: pass after 2 rounds
         return {"feedback": "PASS" if s["rounds"] >= 2 else "Name one specific skill from the CV."}
     reply = await get_model().ainvoke(f"Check this email against the rubric: {RUBRIC}.\nReply PASS, or list the "
@@ -54,11 +66,13 @@ async def critique(s: S):
 
 
 def route(s: S):
+    """Stop when the critic says PASS or the round budget is used up; otherwise write again."""
     done = s["feedback"].upper().startswith("PASS") or s["rounds"] >= MAX_ROUNDS
     return END if done else "write"
 
 
 async def run(cv="cand-006.md", job="backend-engineer"):
+    """Read the CV once over MCP, then run the write ⇄ critique loop."""
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         get_cv = next(t for t in tools if t.name == "get_cv")
@@ -68,6 +82,7 @@ async def run(cv="cand-006.md", job="backend-engineer"):
     g.add_node("critique", critique)
     g.add_edge(START, "write")
     g.add_edge("write", "critique")
+    # This edge can point BACK to "write": that is the cycle. route() decides when to leave it.
     g.add_conditional_edges("critique", route, ["write", END])
     out = await g.compile().ainvoke({"cv_text": cv_text, "job": job})
     banner(f"After {out['rounds']} round(s) · critic: {out['feedback'][:80]}")
