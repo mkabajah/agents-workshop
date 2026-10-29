@@ -10,10 +10,13 @@ AgentCore Runtime runs your agent in an isolated microVM per session and calls O
 with the request payload. The same few lines wrap any framework: see 12 for LangGraph.
 On AWS the RAG server is not a local process: host it as an MCP server (AgentCore Runtime or
 Gateway) and set RAG_MCP_URL + MCP_TOKEN. Deploying is the AWS session's topic.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "session2"))
 
@@ -39,5 +42,6 @@ def invoke(payload: dict) -> dict:
     return {"answer": str(result)}
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     app.run()                                                     # port 8080: /invocations and /ping

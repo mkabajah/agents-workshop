@@ -10,6 +10,8 @@ SESSION 2 · STEP 10 · Tracing: see every model call and tool call, with time a
 It runs the multi-agent team from step 7 and prints one row per step, indented by depth:
 the lead's calls, and INSIDE them the specialists' own model and tool calls.
 Strands and CrewAI emit OpenTelemetry traces instead; LangSmith, Langfuse and others accept them.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import importlib.util
@@ -19,6 +21,7 @@ import sys
 import time
 import uuid
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain_core.callbacks import AsyncCallbackHandler
@@ -70,6 +73,7 @@ class TraceTable(AsyncCallbackHandler):
             print(f"{label[:45]:<46}{secs:>8.2f}{str(tin):>9}{str(tout):>9}")
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(question="Shortlist 3 candidates for the backend job and book an interview with the best one."):
     tracer = TraceTable()
     cfg = {"configurable": {"thread_id": f"traced-{uuid.uuid4().hex[:6]}"}, "callbacks": [tracer],
@@ -87,5 +91,7 @@ async def run(question="Shortlist 3 candidates for the backend job and book an i
     return tracer
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run())

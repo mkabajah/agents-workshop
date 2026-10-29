@@ -8,11 +8,14 @@ EXAMPLE 09 · Strands Graph: a developer-drawn flow of agents, with a condition.
     sourcer ──▶ screener ──(screener found evidence)──▶ writer
 Same idea as session1/06 in LangGraph, in Strands' GraphBuilder. Nodes are Agents; edges can
 carry a condition that reads the graph state.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import os
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "session2"))
 
@@ -49,6 +52,7 @@ def build(tools):
     return g.build()
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     config.check()
     ask = " ".join(a for a in sys.argv[1:] if not a.startswith("--")) or "Shortlist for the backend job"

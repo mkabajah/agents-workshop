@@ -13,6 +13,8 @@ SESSION 1 · STEP 6 · LangGraph: when you KNOW the process, draw it. Put an age
   screen     an AGENT reads the top CVs and checks the evidence        the one step that needs judgement
   approve    interrupt(): a hiring manager approves or rejects         a human
   save       save_shortlist                                            plain code
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import json
@@ -22,6 +24,7 @@ import sys
 import uuid
 from typing import TypedDict
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -36,6 +39,8 @@ from workshop.prompts import SCREENER
 from workshop.show import banner, content_text
 
 
+# The STATE: a shared notebook. Every node (step) reads it and returns a few fields to update.
+# TypedDict just says which fields exist and their types; total=False = none is required.
 class Screening(TypedDict, total=False):
     job: str
     must_haves: list[str]          # e.g. ["java", "kafka", "docker"]
@@ -87,6 +92,8 @@ def build(tools):
         return {"report": content_text(out["messages"][-1])}
 
     def approve(s: Screening):
+        # interrupt() PAUSES the whole graph here. The run returns to our code with "__interrupt__";
+        # when we call it again with Command(resume="approve"), interrupt() returns "approve".
         decision = interrupt({"job": s["job"], "shortlist": s["shortlist"], "report": s["report"]})
         return {"approved": decision == "approve"}
 
@@ -96,20 +103,24 @@ def build(tools):
             await actions.save_shortlist.ainvoke({"job": s["job"], "candidates": s["shortlist"], "reasons": reasons})
         return {}
 
+    # Build the graph: nodes are the step functions above, edges are the arrows between them.
     g = StateGraph(Screening)
     for node in (load_job, source, screen, approve, save):
         g.add_node(node)
     g.add_edge(START, "load_job")
     g.add_edge("load_job", "source")
+    # A fork: after "source", go to "screen" if someone matched, otherwise straight to END.
     g.add_conditional_edges("source", lambda s: "screen" if s["shortlist"] else END, ["screen", END])
     g.add_edge("screen", "approve")
     g.add_edge("approve", "save")
     g.add_edge("save", END)
-    return g.compile(checkpointer=InMemorySaver())
+    return g.compile(checkpointer=InMemorySaver())                # a checkpointer is required to pause
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(job="backend-engineer", auto=False):
     cfg = {"configurable": {"thread_id": f"screen-{uuid.uuid4().hex[:6]}"}}
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         app = build(tools)
         result = await app.ainvoke({"job": job}, cfg)
@@ -126,6 +137,8 @@ async def run(job="backend-engineer", auto=False):
     return result
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(args[0] if args else "backend-engineer", "--auto" in sys.argv))

@@ -8,12 +8,15 @@ EXAMPLE 04 · Router: one classification, then a fixed branch.      Pattern: rou
 The model decides ONCE (which kind of question?), then plain code runs the right tool.
 Cheaper and more predictable than an agent, when the kinds of questions are known.
 With MODEL=fake the classifier falls back to keywords.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 from typing import Literal, TypedDict
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langgraph.graph import END, START, StateGraph
@@ -35,6 +38,7 @@ class S(TypedDict, total=False):
     result: str
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def classify(s: S) -> dict:
     q = s["question"]
     if config.MODEL != "fake":
@@ -77,11 +81,14 @@ def build(tools):
 
 
 async def run(question: str):
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         out = await build(tools).ainvoke({"question": question})
     print(f"route = {out['route'].kind} ({out['route'].term!r})\n{out['result'][:600]}")
     return out
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(" ".join(sys.argv[1:]) or "Which candidates know Python?"))

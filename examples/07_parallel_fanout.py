@@ -6,6 +6,8 @@ EXAMPLE 07 · Fan-out in parallel, then merge.        Pattern: map-reduce with L
 One branch per must-have runs AT THE SAME TIME (Send), each calling find_candidates; a reducer
 merges the lists; the merge node ranks candidates by how many must-haves they meet.
 No model needed for this part, so it is fast and testable: agents only where judgement is needed.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import json
@@ -15,6 +17,7 @@ import sys
 import time
 from typing import Annotated, TypedDict
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langgraph.graph import END, START, StateGraph
@@ -74,7 +77,9 @@ def build(tools):
     return g.compile()
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(job="backend-engineer"):
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         start = time.perf_counter()
         out = await build(tools).ainvoke({"job": job})
@@ -85,5 +90,7 @@ async def run(job="backend-engineer"):
     return out
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(sys.argv[1] if len(sys.argv) > 1 else "backend-engineer"))

@@ -46,6 +46,20 @@ or local and free: `ollama:qwen2.5:7b`. `MODEL=fake` runs everything offline wit
 **Privacy.** `CV_DIR` defaults to the **invented** CVs in `data/cvs`. Real CVs stay on your laptop:
 use them only with a local model (Ollama).
 
+## Same agent, three frameworks
+
+LangChain + LangGraph is the default (what we teach). Every Session 1 step also exists in
+**Strands Agents** and **CrewAI**, on the same MCP server: [`frameworks/`](frameworks/README.md).
+
+```bash
+python run.py 02 "Which candidates know Kafka?"                      # LangChain (default)
+python run.py 02 "Which candidates know Kafka?" --framework strands
+python run.py 04 --framework crewai                                  # approval before every write
+python run.py --list
+```
+
+New to `async`/`await`, `async with` or decorators? Read [`PYTHON_NOTES.md`](PYTHON_NOTES.md) first (5 minutes).
+
 ## Session 1 · one agent
 
 | Step | Run | You learn |
@@ -85,12 +99,14 @@ See [`examples/README.md`](examples/README.md). Which framework to teach and pic
 ## Test
 
 ```bash
-pytest -q        # 24 tests: every script and example, MODEL=fake, against the bundled MCP server (or yours)
+pytest -q        # 35 tests: every script, example and framework version, MODEL=fake, against the bundled MCP server
 ```
 
 ## Files
 
 ```
+run.py         one entry point: python run.py <step> [--framework strands|crewai]
+frameworks/    the Session 1 steps in Strands and CrewAI     PYTHON_NOTES.md  async, with, decorators in plain words
 cv_server/     the bundled CV MCP server (4 tools)        data/  cvs/ (invented) · jobs/ · security/ (injection demo)
 workshop/      config.py (env) · models.py (get_model + the fake) · mcp_tools.py (the MCP server as LangChain tools)
                actions.py (mock write tools → outbox/) · prompts.py · show.py (prints the trace)

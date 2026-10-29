@@ -8,10 +8,13 @@ EXAMPLE 12 · The SAME AgentCore entrypoint around a LangChain/LangGraph agent. 
 
 The point: AgentCore Runtime hosts LangGraph, Strands, CrewAI or plain Python the same way.
 Choosing LangGraph today does not block running on AWS tomorrow; only these ~15 lines change.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
@@ -33,6 +36,7 @@ async def invoke(payload: dict) -> dict:
     if not prompt:
         return {"error": "Send {'prompt': '...'}"}
     cfg = {"configurable": {"thread_id": str(payload.get("thread_id", "default"))}}
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         agent = create_agent(get_model(), tools, system_prompt=HIRING_AGENT, checkpointer=memory)
         out = await agent.ainvoke({"messages": [{"role": "user", "content": prompt}]}, cfg)
@@ -40,5 +44,6 @@ async def invoke(payload: dict) -> dict:
             "tools_used": [c["name"] for m in out["messages"] for c in getattr(m, "tool_calls", [])]}
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     app.run()

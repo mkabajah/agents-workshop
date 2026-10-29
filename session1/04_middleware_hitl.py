@@ -9,6 +9,8 @@ SESSION 1 · STEP 4 · Middleware: limits, summarisation and HUMAN APPROVAL befo
 The agent now has action tools (schedule_interview, send_email). Reads run freely; every write
 stops the graph and waits for a person: approve, edit the arguments, or reject with a reason.
 Look in outbox/ afterwards to see what really "happened".
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import argparse
 import asyncio
@@ -17,6 +19,7 @@ import pathlib
 import sys
 import uuid
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -69,7 +72,10 @@ def ask_human(request: dict, auto: bool) -> list[dict]:
     return decisions
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def drive(agent, payload, cfg, auto):
+    # The approval loop. When the middleware pauses the agent, ainvoke RETURNS early with "__interrupt__".
+    # We ask a person, then call ainvoke again with Command(resume=...) on the SAME thread to continue.
     """Run until the agent finishes; every interrupt goes to a human, then we resume."""
     result = await agent.ainvoke(payload, cfg)
     while result.get("__interrupt__"):
@@ -82,9 +88,11 @@ async def run(question, auto=False, sqlite=None, resume=None):
     thread = resume or f"hire-{uuid.uuid4().hex[:6]}"
     cfg = {"configurable": {"thread_id": thread}}
     print(f"thread_id = {thread}   (Ctrl+C at a prompt, then --sqlite FILE --resume {thread})")
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         if sqlite:
             from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+            # A SQLite file as the checkpointer: a paused run survives Ctrl+C and can be resumed later.
             async with AsyncSqliteSaver.from_conn_string(sqlite) as saver:
                 agent = build_agent(tools, saver)
                 result = await _go(agent, question, cfg, auto, resume)
@@ -108,7 +116,9 @@ async def _go(agent, question, cfg, auto, resume):
     return await drive(agent, payload, cfg, auto)
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # argparse reads the command-line options (--auto, --sqlite, --resume) into variables.
     p = argparse.ArgumentParser()
     p.add_argument("question", nargs="*")
     p.add_argument("--auto", action="store_true", help="approve every action (for tests)")
@@ -116,4 +126,5 @@ if __name__ == "__main__":
     p.add_argument("--resume", help="a thread id to resume (with --sqlite)")
     a = p.parse_args()
     q = " ".join(a.question) or "Find a Kafka candidate and book an interview for the backend job."
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(q, a.auto, a.sqlite, a.resume))

@@ -75,50 +75,63 @@ class ScriptedChatModel(BaseChatModel):
     def _next(self, messages) -> AIMessage:
         last_h = max((i for i, m in enumerate(messages) if isinstance(m, HumanMessage)), default=-1)
         question = str(messages[last_h].content) if last_h >= 0 else str(messages[-1].content)
-        if not self.tool_names:                                    # e.g. the summariser
-            return AIMessage(content=f"(fake model) Summary of the conversation so far: {question[:200]}")
         turn = messages[last_h + 1:]
-        done = [(tc["name"], json.dumps(tc["args"], sort_keys=True))
-                for m in turn if isinstance(m, AIMessage) for tc in m.tool_calls]
+        done = [(tc["name"], tc["args"]) for m in turn if isinstance(m, AIMessage) for tc in m.tool_calls]
         outputs = " ".join(str(m.content) for m in turn if isinstance(m, ToolMessage))
-        found = list(dict.fromkeys(n for n in CV_NAME.findall(question + " " + outputs) if "/" not in n))
-        if len(done) < self.max_calls:
-            for name, args in self._plan(question.lower(), question, found):
-                key = (name, json.dumps(args, sort_keys=True))
-                if name in self.tool_names and key not in done and not (name in ONCE and any(d[0] == name for d in done)):
-                    return AIMessage(content="", tool_calls=[{"name": name, "args": args, "id": f"call_{uuid.uuid4().hex[:8]}"}])
-        names = ", ".join(found[:5]) if found else "no matching CVs"
-        return AIMessage(content=f"(fake model) From the tool results: {names}. "
-                                 f"A real model would now reason over the evidence and write the answer.")
+        kind, name, args = decide(question, self.tool_names, self.tool_args, done, outputs, self.max_calls)
+        if kind == "call":
+            return AIMessage(content="", tool_calls=[{"name": name, "args": args, "id": f"call_{uuid.uuid4().hex[:8]}"}])
+        return AIMessage(content=name)
 
-    def _plan(self, q, question, found):
-        skills = [s for s in SKILLS if re.search(rf"(?<![a-z]){re.escape(s)}(?![a-z])", q)]
-        city = next((c for c in CITIES if c in q), "")
-        job = _job(q)
-        if "job" in q or "shortlist" in q:
-            yield "list_jobs", {}
-        if "sourcer" in self.tool_names:
-            yield "sourcer", {"task": question}
-        if found:
-            yield "screener", {"task": f"Check the evidence in {', '.join(found[:3])} for: {question}"}
-        for s in skills[:3]:
-            yield "find_candidates", {"skill": s, "city": city}
-        if city and not skills:
-            yield "find_candidates", {"skill": "", "city": city}
-        if not skills and not city:
-            yield "search_cvs", {"question": question}
-        if found and any(w in q for w in ("evidence", "check", "shortlist", "strongest", "best", "screen")):
-            yield "get_cv", {"file_name": found[0]}
-        if found and any(w in q for w in ("interview", "schedule", "book")):
-            yield "get_free_slots", {}
-            yield "schedule_interview", {"cv": found[0], "job": job, "slot": "Mon 11:00"}
-            yield "coordinator", {"task": f"Book an interview for {found[0]} ({job})."}
-        if found and "email" in q:
-            yield "send_email", {"cv": found[0], "subject": f"Your application: {job}",
-                                 "body": "Thank you for applying. We'd like to talk next week."}
-        for name in self.tool_names:                               # any other tool named in the question
-            verb = name.split("_")[0]                              # e.g. "remember" in remember_preference
-            if name not in ONCE and name != "find_candidates" and len(verb) > 3 and verb in q:
-                yield name, {a: question for a in self.tool_args.get(name, [])}
-        if found and "save" in q:
-            yield "save_shortlist", {"job": job, "candidates": found[:3], "reasons": ["matches the must-haves"] * len(found[:3])}
+def _plan(tool_names, tool_args, q, question, found):
+    skills = [s for s in SKILLS if re.search(rf"(?<![a-z]){re.escape(s)}(?![a-z])", q)]
+    city = next((c for c in CITIES if c in q), "")
+    job = _job(q)
+    if "job" in q or "shortlist" in q:
+        yield "list_jobs", {}
+    if "sourcer" in tool_names:
+        yield "sourcer", {"task": question}
+    if found:
+        yield "screener", {"task": f"Check the evidence in {', '.join(found[:3])} for: {question}"}
+    for s in skills[:3]:
+        yield "find_candidates", {"skill": s, "city": city}
+    if city and not skills:
+        yield "find_candidates", {"skill": "", "city": city}
+    if not skills and not city:
+        yield "search_cvs", {"question": question}
+    if found and any(w in q for w in ("evidence", "check", "shortlist", "strongest", "best", "screen")):
+        yield "get_cv", {"file_name": found[0]}
+    if found and any(w in q for w in ("interview", "schedule", "book")):
+        yield "get_free_slots", {}
+        yield "schedule_interview", {"cv": found[0], "job": job, "slot": "Mon 11:00"}
+        yield "coordinator", {"task": f"Book an interview for {found[0]} ({job})."}
+    if found and "email" in q:
+        yield "send_email", {"cv": found[0], "subject": f"Your application: {job}",
+                             "body": "Thank you for applying. We'd like to talk next week."}
+    for name in tool_names:                               # any other tool named in the question
+        verb = name.split("_")[0]                              # e.g. "remember" in remember_preference
+        if name not in ONCE and name != "find_candidates" and len(verb) > 3 and verb in q:
+            yield name, {a: question for a in tool_args.get(name, [])}
+    if found and "save" in q:
+        yield "save_shortlist", {"job": job, "candidates": found[:3], "reasons": ["matches the must-haves"] * len(found[:3])}
+
+
+def decide(question, tool_names, tool_args, done, outputs, max_calls=8):
+    """The fake model's whole brain, shared by the LangChain, Strands and CrewAI stand-ins.
+
+    question  the user's latest message           tool_names/tool_args  the tools it may call
+    done      [(tool, args)] already called       outputs               the tool results so far, as text
+    Returns ("call", tool, args) or ("answer", text, None).
+    """
+    if not tool_names:                                             # e.g. the summariser: no tools
+        return "answer", f"(fake model) Summary of the conversation so far: {question[:200]}", None
+    done_keys = [(n, json.dumps(a, sort_keys=True)) for n, a in done]
+    found = list(dict.fromkeys(n for n in CV_NAME.findall(question + " " + outputs) if "/" not in n))
+    if len(done) < max_calls:
+        for name, args in _plan(tool_names, tool_args, question.lower(), question, found):
+            key = (name, json.dumps(args, sort_keys=True))
+            if name in tool_names and key not in done_keys and not (name in ONCE and any(d[0] == name for d in done_keys)):
+                return "call", name, args
+    names = ", ".join(found[:5]) if found else "no matching CVs"
+    return ("answer", f"(fake model) From the tool results: {names}. "
+                      f"A real model would now reason over the evidence and write the answer.", None)

@@ -9,10 +9,13 @@ EXAMPLE 10 · CrewAI Flow: deterministic steps with a crew inside one step.     
                                                           └─ "empty"          ─▶ give_up
 Flows are CrewAI's production shape: plain Python where the steps are known, a crew where
 autonomy helps. Same lesson as LangGraph in session 1.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "session2"))
 
@@ -52,6 +55,7 @@ class HiringFlow(Flow[HiringState]):
         print("No candidate met the must-haves. Nothing to review.")
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     config.check()
     args = [a for a in sys.argv[1:] if not a.startswith("--")]

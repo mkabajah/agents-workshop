@@ -6,11 +6,14 @@ EXAMPLE 08 · Long-term memory across conversations.       Pattern: a store + re
 Thread memory (checkpointer) ends with the conversation. A STORE keeps facts across threads,
 per user: "Dana prefers candidates in Haifa". The agent reads and writes it through two tools,
 so it decides what is worth remembering. Production: a Postgres or vector store instead of memory.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -41,7 +44,9 @@ def recall_preferences(question: str, runtime: ToolRuntime) -> list[str]:
     return [item.value["note"] for item in store.search((runtime.context["user_id"], "prefs"))]
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run():
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         agent = create_agent(get_model(), tools + [remember_preference, recall_preferences],
                              system_prompt=HIRING_AGENT + "\nRecall the recruiter's preferences before searching.",
@@ -56,5 +61,7 @@ async def run():
     return store
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run())

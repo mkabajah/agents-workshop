@@ -10,6 +10,8 @@ SESSION 2 · STEP 7 · Multi-agent with LangChain: a lead agent whose tools are 
 
 Why split: each specialist sees only ITS tools and ITS context. The raw CV text the screener
 reads never reaches the lead: only the screener's short report does.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import argparse
 import asyncio
@@ -17,6 +19,7 @@ import pathlib
 import sys
 import uuid
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -68,8 +71,10 @@ def build(tools):
     )
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(question: str, auto=False):
     cfg = {"configurable": {"thread_id": f"lead-{uuid.uuid4().hex[:6]}"}}
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         lead = build(tools)
         result = await lead.ainvoke({"messages": [{"role": "user", "content": question}]}, cfg)
@@ -85,10 +90,12 @@ async def run(question: str, auto=False):
     return result
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("question", nargs="*")
     p.add_argument("--auto", action="store_true")
     a = p.parse_args()
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(" ".join(a.question) or
                     "Shortlist 3 candidates for the backend job and book an interview with the best one.", a.auto))

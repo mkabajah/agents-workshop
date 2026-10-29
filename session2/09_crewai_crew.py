@@ -11,12 +11,15 @@ MCP: the `mcps=[...]` field on an Agent connects your RAG server to that agent.
 
 Model: CREW_LLM (a LiteLLM name, e.g. "anthropic/claude-sonnet-4-6", "ollama/qwen2.5:7b",
 "groq/openai/gpt-oss-20b"), or derived from MODEL ("anthropic:x" → "anthropic/x").
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import json
 import os
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from crewai import Agent, Crew, Process, Task
@@ -56,6 +59,7 @@ def job_post(job: str) -> str:
     return (config.JOBS_DIR / f"{job}.md").read_text(encoding="utf-8")
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     config.check()
     args = [a for a in sys.argv[1:] if not a.startswith("--")]

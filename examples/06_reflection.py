@@ -6,12 +6,15 @@ EXAMPLE 06 · Reflection: a writer and a critic loop until it's good.   Pattern:
 The writer drafts an interview invitation from the CV evidence; the critic checks it against a
 rubric (specific, fair, short, no promises, no personal data) and returns PASS or fixes.
 At most 3 rounds: a loop always needs a budget. Built as a 2-node LangGraph with a cycle.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 from typing import TypedDict
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langgraph.graph import END, START, StateGraph
@@ -34,6 +37,7 @@ class S(TypedDict, total=False):
     rounds: int
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def write(s: S):
     prompt = (f"Write a short interview invitation for the {s['job']} role, based on this CV:\n{s['cv_text'][:2500]}\n"
               + (f"\nRevise using this feedback: {s['feedback']}\nPrevious draft:\n{s['draft']}" if s.get("feedback") else ""))
@@ -55,6 +59,7 @@ def route(s: S):
 
 
 async def run(cv="cand-006.md", job="backend-engineer"):
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         get_cv = next(t for t in tools if t.name == "get_cv")
         cv_text = str(await get_cv.ainvoke({"file_name": cv}))
@@ -70,6 +75,8 @@ async def run(cv="cand-006.md", job="backend-engineer"):
     return out
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     a = sys.argv[1:]
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(*(a[:2] if len(a) >= 2 else ["cand-006.md", "backend-engineer"])))

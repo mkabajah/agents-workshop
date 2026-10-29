@@ -12,11 +12,14 @@ What you see:
 
 Every agent framework (LangChain, Strands, CrewAI, the OpenAI and Claude SDKs) is this loop
 plus memory, limits, streaming, hooks and tracing.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
@@ -31,14 +34,18 @@ from workshop.show import banner, trace
 MAX_STEPS = 8                                            # never `while True`: an agent needs a budget
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run(question: str):
     config.check()
     cv = mcp_tools.server_config()["cv"]
     server = StdioServerParameters(command=cv["command"], args=cv["args"], env=cv["env"], cwd=cv["cwd"])
 
+    # Start the CV MCP server as a child process and talk to it through its stdin/stdout ("stdio").
+    # "async with" closes the session and stops the server at the end, even after an error.
     async with stdio_client(server) as (read, write), ClientSession(read, write) as mcp:
-        await mcp.initialize()
+        await mcp.initialize()                                             # the MCP handshake
         listed = await mcp.list_tools()                                    # ① MCP tools/list
+        # Turn each MCP tool into the JSON "function" format that chat models understand.
         schemas = [{"type": "function", "function": {
             "name": t.name, "description": t.description, "parameters": t.inputSchema}} for t in listed.tools]
         print("Tools from your MCP server:", [t.name for t in listed.tools])
@@ -53,9 +60,10 @@ async def run(question: str):
                 break
             for call in reply.tool_calls:
                 result = await mcp.call_tool(call["name"], call["args"])  # ④ OUR code acts (tools/call)
+                # The answer comes back as a list of content blocks; we join their text.
                 text = "\n".join(c.text for c in result.content if getattr(c, "text", None))
                 messages.append(ToolMessage(text, tool_call_id=call["id"], name=call["name"]))   # ⑤ observe
-        else:
+        else:                                                              # for…else: runs only if we never hit "break"
             print(f"Stopped after {MAX_STEPS} steps: step limit.")
 
     banner(f"The loop ran {step} model call(s)")
@@ -63,5 +71,7 @@ async def run(question: str):
     return messages
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(" ".join(sys.argv[1:]) or "Who knows Kafka?"))

@@ -9,6 +9,8 @@ Two custom middlewares:
   audit_log        every tool call, its arguments and how long it took → outbox/audit.jsonl
 
 A prompt can be talked out of a rule (or ignore it). Middleware cannot: it runs on every call.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import asyncio
 import json
@@ -16,6 +18,7 @@ import pathlib
 import sys
 import time
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -31,6 +34,9 @@ from workshop.show import banner, trace
 WRITES = {"schedule_interview", "send_email"}
 
 
+# @wrap_tool_call turns this function into middleware that runs AROUND every tool call.
+# request = the call the model asked for (+ the conversation so far); handler = "run the real tool".
+# It is async because handler() is: we await it to run the tool.
 @wrap_tool_call
 async def evidence_first(request, handler):
     call = request.tool_call
@@ -39,6 +45,7 @@ async def evidence_first(request, handler):
         read = any(isinstance(m, ToolMessage) and m.name == "get_cv" and cv and cv in str(m.content)
                    for m in request.state["messages"])
         if not read:
+            # Returning a message INSTEAD of calling handler() blocks the tool. The model reads why.
             return ToolMessage(f"Blocked: read the CV first with get_cv('{cv}'), then explain why this "
                                f"candidate fits before you {call['name']}.", tool_call_id=call["id"], name=call["name"])
     return await handler(request)                      # run the real tool
@@ -56,6 +63,7 @@ async def audit_log(request, handler):
 
 
 async def run(question: str):
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         agent = create_agent(get_model(), tools + actions.ALL, system_prompt=HIRING_AGENT,
                              middleware=[audit_log, evidence_first])   # order: outer → inner
@@ -66,5 +74,7 @@ async def run(question: str):
     return result
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(run(" ".join(sys.argv[1:]) or "Book an interview for a Kafka candidate for the backend job."))

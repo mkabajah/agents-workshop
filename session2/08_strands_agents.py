@@ -10,11 +10,14 @@ Strands is "model-driven": an Agent is a model + tools + a prompt, and the model
 Same MCP server, different client: strands.tools.mcp.MCPClient.
 
 Model: taken from MODEL (anthropic:…, openai:…, ollama:…) or MODEL=bedrock for Strands' default.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import os
 import pathlib
 import sys
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from mcp import StdioServerParameters, stdio_client
@@ -66,6 +69,7 @@ def build(rag_tools, swarm=False):
                  tools=[by_name["list_jobs"], sourcer, screener])
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     config.check()
     use_swarm, dry = "--swarm" in sys.argv, "--dry" in sys.argv

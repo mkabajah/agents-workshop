@@ -11,6 +11,8 @@ Three kinds of checks:
   JUDGE    (another model) is every claim grounded in what the tools returned?
 
 Run it before and after every change to a prompt, a tool description, the model or the RAG.
+
+New to async/await, "async with" or decorators? Read PYTHON_NOTES.md (5 minutes).
 """
 import argparse
 import asyncio
@@ -20,6 +22,7 @@ import re
 import sys
 import time
 
+# Let Python find the shared "workshop" package in the repo root (PYTHON_NOTES.md §3).
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from langchain.agents import create_agent
@@ -41,6 +44,7 @@ class Verdict(BaseModel):
     reason: str
 
 
+# async def: this function waits on the model and the MCP server; each wait is marked with await.
 async def run_agent(agent, question):
     start = time.perf_counter()
     out = await agent.ainvoke({"messages": [{"role": "user", "content": question}]})
@@ -75,6 +79,7 @@ async def judge(ex, out):
 async def main(use_judge=False, use_langsmith=False):
     examples = [json.loads(line) for line in DATA.read_text().splitlines() if line.strip()]
     rows = []
+    # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
         agent = create_agent(get_model(), tools, system_prompt=HIRING_AGENT)
         for ex in examples:
@@ -129,9 +134,11 @@ async def upload(examples):
     print("Uploaded: open the dataset 'hiring-agent-evals' in LangSmith → Experiments.")
 
 
+# Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--judge", action="store_true")
     p.add_argument("--langsmith", action="store_true")
     a = p.parse_args()
+    # asyncio.run() starts the async function and waits until it is finished.
     asyncio.run(main(a.judge, a.langsmith))
