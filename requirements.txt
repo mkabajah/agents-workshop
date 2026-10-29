@@ -1,0 +1,16 @@
+# Everything this repo needs, including the bundled CV MCP server (cv_server/).
+langchain>=1.0,<2
+langgraph>=1.0,<2
+langchain-mcp-adapters>=0.2
+mcp>=1.20,<2
+langsmith>=0.4
+langgraph-checkpoint-sqlite>=2.0      # durable pauses: session1/04 --sqlite
+aiosqlite>=0.20
+pydantic>=2
+pypdf>=4                              # the bundled server reads PDF CVs (injection demo)
+pytest>=8
+
+# pick the provider(s) you use with MODEL=
+langchain-anthropic>=1.0              # MODEL=anthropic:...
+langchain-openai>=1.0                 # MODEL=openai:...  (also Groq / OpenRouter / Gemini via OPENAI_BASE_URL)
+# langchain-ollama>=1.0               # MODEL=ollama:qwen2.5:7b  (local, free)

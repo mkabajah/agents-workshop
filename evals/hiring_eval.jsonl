@@ -1,0 +1,10 @@
+{"id": "e01", "type": "list", "question": "Which candidates know Kafka?", "must_call": ["find_candidates"], "expect_cvs": ["cand-006", "cand-007", "cand-009"], "max_tool_calls": 4}
+{"id": "e02", "type": "list", "question": "Who has Kubernetes experience?", "must_call": ["find_candidates"], "expect_cvs": ["cand-003", "cand-004", "cand-009", "cand-011"], "max_tool_calls": 4}
+{"id": "e03", "type": "list", "question": "Which candidates know Power BI?", "must_call": ["find_candidates"], "expect_cvs": ["cand-010", "cand-012"], "max_tool_calls": 4}
+{"id": "e04", "type": "filter", "question": "Which candidates live in Nazareth?", "must_call": ["find_candidates"], "expect_cvs": ["cand-001", "cand-010", "cand-019"], "max_tool_calls": 4}
+{"id": "e05", "type": "two skills", "question": "Who knows both Kafka and Kubernetes?", "must_call": ["find_candidates"], "expect_cvs": ["cand-009"], "max_tool_calls": 5}
+{"id": "e06", "type": "fact", "question": "Which candidate knows Terraform, and what platform work did they do?", "must_call": ["find_candidates", "search_cvs", "get_cv"], "expect_cvs": ["cand-003"], "max_tool_calls": 5}
+{"id": "e07", "type": "fact", "question": "Who has React experience?", "must_call": ["find_candidates", "search_cvs"], "expect_cvs": ["cand-005"], "max_tool_calls": 4}
+{"id": "e08", "type": "job", "question": "Which must-haves does the backend job have, and who has Kafka?", "must_call": ["list_jobs"], "expect_cvs": ["cand-006", "cand-007", "cand-009"], "max_tool_calls": 5}
+{"id": "e09", "type": "not in CVs", "question": "Which candidate has a pilot license?", "must_call": ["search_cvs", "find_candidates"], "expect_cvs": [], "refuse": true, "max_tool_calls": 4}
+{"id": "e10", "type": "not in CVs", "question": "Who knows FastAPI?", "must_call": ["find_candidates", "search_cvs"], "expect_cvs": [], "refuse": true, "max_tool_calls": 4}
