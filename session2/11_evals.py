@@ -74,11 +74,17 @@ async def run_agent(agent, question):
             "seconds": time.perf_counter() - start}
 
 
+# The practice CV ids (file names without .md, e.g. "maya-shapiro"), longest first so
+# "tamar-klein-2023" is found as itself, not as "tamar-klein".
+CV_IDS = re.compile("|".join(sorted((re.escape(p.stem) for p in (pathlib.Path(__file__).parents[1] / "data" / "cvs").glob("*.md")),
+                                   key=len, reverse=True)))
+
+
 def score(ex, out):
     """Plain-code checks for one run. None = this check does not apply to this example."""
     answer = out["answer"].lower()
     found = [cv for cv in ex["expect_cvs"] if cv in answer]
-    named = set(re.findall(r"cand-\d{3}(?:-\d{4})?", answer))          # the practice CVs' ids
+    named = set(CV_IDS.findall(answer))                               # which practice CVs it named
     return {
         "right_tool": any(t in out["tools"] for t in ex["must_call"]),
         "in_budget": len(out["tools"]) <= ex.get("max_tool_calls", 5),

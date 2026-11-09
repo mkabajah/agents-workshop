@@ -1,7 +1,6 @@
 ---
-title: CV · Shira Golan (CAND-015)
-doc_id: cand-015
-candidate_id: CAND-015
+title: CV · Shira Golan
+doc_id: shira-golan
 name: Shira Golan
 location: Jerusalem
 years: 7
@@ -14,7 +13,7 @@ updated: 2026-07-15
 ---
 # Shira Golan · Product Manager
 
-CAND-015 · Jerusalem · 7 years of experience · Languages: Hebrew, English
+Jerusalem · 7 years of experience · Languages: Hebrew, English
 
 ## Summary
 

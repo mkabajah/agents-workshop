@@ -1,7 +1,7 @@
 """
 EXAMPLE 02 · Structured output: the agent returns a typed object, not prose.   Pattern: agent → data
 
-    python examples/02_structured_output.py "Summarise cand-006.md for the backend job"
+    python examples/02_structured_output.py "Summarise maya-shapiro.md for the backend job"
 
 What it shows: response_format=<Pydantic model> makes create_agent finish with an OBJECT (fields you
 defined) instead of free text. The agent still uses its tools first; only the final answer is typed.
@@ -61,4 +61,4 @@ async def run(question: str):
 # Runs only when you start this file yourself, not when a test imports it.
 if __name__ == "__main__":
     # asyncio.run() starts the async function and waits until it is finished.
-    asyncio.run(run(" ".join(sys.argv[1:]) or "Summarise cand-006.md for the backend job"))
+    asyncio.run(run(" ".join(sys.argv[1:]) or "Summarise maya-shapiro.md for the backend job"))

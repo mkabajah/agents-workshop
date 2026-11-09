@@ -1,7 +1,6 @@
 ---
-title: CV · Rania Khoury (CAND-017)
-doc_id: cand-017
-candidate_id: CAND-017
+title: CV · Rania Khoury
+doc_id: rania-khoury
 name: Rania Khoury
 location: Haifa
 years: 5
@@ -14,7 +13,7 @@ updated: 2026-09-15
 ---
 # Rania Khoury · Machine Learning Engineer (LLM)
 
-CAND-017 · Haifa · 5 years of experience · Languages: Arabic, Hebrew, English
+Haifa · 5 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

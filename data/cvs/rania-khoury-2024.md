@@ -1,7 +1,6 @@
 ---
-title: CV · Rania Khoury (CAND-017)
-doc_id: cand-017-2024
-candidate_id: CAND-017
+title: CV · Rania Khoury
+doc_id: rania-khoury-2024
 name: Rania Khoury
 location: Haifa
 years: 3
@@ -14,7 +13,7 @@ updated: 2024-02-10
 ---
 # Rania Khoury · Data Analyst
 
-CAND-017 · Haifa · 3 years of experience · Languages: Arabic, Hebrew, English
+Haifa · 3 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

@@ -1,7 +1,6 @@
 ---
-title: CV · Dina Hassan (CAND-019)
-doc_id: cand-019
-candidate_id: CAND-019
+title: CV · Dina Hassan
+doc_id: dina-hassan
 name: Dina Hassan
 location: Nazareth
 years: 2
@@ -14,7 +13,7 @@ updated: 2026-02-15
 ---
 # Dina Hassan · QA Automation Engineer
 
-CAND-019 · Nazareth · 2 years of experience · Languages: Arabic, Hebrew, English
+Nazareth · 2 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

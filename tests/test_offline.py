@@ -33,7 +33,7 @@ def run(script, *args, stdin=""):
 
 def test_loop_by_hand_calls_mcp():
     out = run("session1/01_loop_by_hand.py", "Who knows Kafka?")
-    assert "find_candidates" in out and "cand-006.md" in out
+    assert "find_candidates" in out and "maya-shapiro.md" in out
 
 
 def test_first_agent():
@@ -48,7 +48,7 @@ def test_memory_threads():
 
 def test_hitl_approve_and_reject():
     approved = run("session1/04_middleware_hitl.py", "--auto", "Find a Kafka candidate and book an interview")
-    assert "Booked cand-006.md" in approved
+    assert "Booked maya-shapiro.md" in approved
     rejected = run("session1/04_middleware_hitl.py", "Find a Kafka candidate and book an interview", stdin="r\nWrong slot\n")
     assert "rejected" in rejected
 

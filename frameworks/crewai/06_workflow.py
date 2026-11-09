@@ -13,7 +13,7 @@ How to run
     python frameworks/crewai/06_workflow.py backend-engineer --auto      # approve automatically (tests)
 
 What you'll see
-    The must-haves and the shortlist (for backend-engineer: cand-006, cand-018, cand-007), the
+    The must-haves and the shortlist (for backend-engineer: maya-shapiro, avi-mizrahi, sami-awad), the
     screener's report, a pause for your approval, and "Done · approved = True". CrewAI also prints
     boxes showing the flow's progress. An approved shortlist is written to outbox/shortlists.jsonl.
 

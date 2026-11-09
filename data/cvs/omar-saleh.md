@@ -1,7 +1,6 @@
 ---
-title: CV · Omar Saleh (CAND-008)
-doc_id: cand-008
-candidate_id: CAND-008
+title: CV · Omar Saleh
+doc_id: omar-saleh
 name: Omar Saleh
 location: Haifa
 years: 9
@@ -14,7 +13,7 @@ updated: 2026-09-15
 ---
 # Omar Saleh · Research Scientist (Computer Vision)
 
-CAND-008 · Haifa · 9 years of experience · Languages: Arabic, Hebrew, English, French
+Haifa · 9 years of experience · Languages: Arabic, Hebrew, English, French
 
 ## Summary
 

@@ -1,7 +1,6 @@
 ---
-title: CV · Karim Mansour (CAND-003)
-doc_id: cand-003
-candidate_id: CAND-003
+title: CV · Karim Mansour
+doc_id: karim-mansour
 name: Karim Mansour
 location: Haifa
 years: 8
@@ -14,7 +13,7 @@ updated: 2026-04-15
 ---
 # Karim Mansour · Platform / DevOps Engineer
 
-CAND-003 · Haifa · 8 years of experience · Languages: Arabic, Hebrew, English
+Haifa · 8 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

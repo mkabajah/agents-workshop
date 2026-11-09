@@ -5,7 +5,7 @@ What you learn
     tool call: it can look at the call, block it, change it, time it, or log it.
 
 How to run
-    python session1/05_guardrail.py "Book an interview for cand-006.md for the backend job"
+    python session1/05_guardrail.py "Book an interview for maya-shapiro.md for the backend job"
     MODEL=fake python session1/05_guardrail.py                            # offline, no API key
 
 Two custom middlewares

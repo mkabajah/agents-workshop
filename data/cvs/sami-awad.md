@@ -1,7 +1,6 @@
 ---
-title: CV · Sami Awad (CAND-007)
-doc_id: cand-007
-candidate_id: CAND-007
+title: CV · Sami Awad
+doc_id: sami-awad
 name: Sami Awad
 location: Amman
 years: 6
@@ -14,7 +13,7 @@ updated: 2026-08-15
 ---
 # Sami Awad · Data Engineer
 
-CAND-007 · Amman · 6 years of experience · Languages: Arabic, English
+Amman · 6 years of experience · Languages: Arabic, English
 
 ## Summary
 

@@ -1,7 +1,6 @@
 ---
-title: CV · Yousef Darwish (CAND-016)
-doc_id: cand-016
-candidate_id: CAND-016
+title: CV · Yousef Darwish
+doc_id: yousef-darwish
 name: Yousef Darwish
 location: Amman
 years: 4
@@ -14,7 +13,7 @@ updated: 2026-08-15
 ---
 # Yousef Darwish · Mobile Developer
 
-CAND-016 · Amman · 4 years of experience · Languages: Arabic, English
+Amman · 4 years of experience · Languages: Arabic, English
 
 ## Summary
 

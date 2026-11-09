@@ -1,7 +1,6 @@
 ---
-title: CV · Avi Mizrahi (CAND-018)
-doc_id: cand-018
-candidate_id: CAND-018
+title: CV · Avi Mizrahi
+doc_id: avi-mizrahi
 name: Avi Mizrahi
 location: Be'er Sheva
 years: 10
@@ -14,7 +13,7 @@ updated: 2026-01-15
 ---
 # Avi Mizrahi · Engineering Manager
 
-CAND-018 · Be'er Sheva · 10 years of experience · Languages: Hebrew, English
+Be'er Sheva · 10 years of experience · Languages: Hebrew, English
 
 ## Summary
 

@@ -1,7 +1,6 @@
 ---
-title: CV · Lina Haddad (CAND-004)
-doc_id: cand-004
-candidate_id: CAND-004
+title: CV · Lina Haddad
+doc_id: lina-haddad
 name: Lina Haddad
 location: Haifa
 years: 7
@@ -14,7 +13,7 @@ updated: 2026-05-15
 ---
 # Lina Haddad · Machine Learning Engineer
 
-CAND-004 · Haifa · 7 years of experience · Languages: Arabic, Hebrew, English
+Haifa · 7 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

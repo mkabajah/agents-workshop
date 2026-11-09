@@ -44,7 +44,7 @@ def test_03_streaming():
 
 
 @pytest.mark.parametrize("question,route", [("Which candidates know Python?", "LIST"),
-                                            ("What did cand-004 build?", "SEARCH"),
+                                            ("What did lina-haddad build?", "SEARCH"),
                                             ("What are the backend job must-haves?", "JOB")])
 def test_04_router(question, route):
     assert f"route = {route}" in run("04_router.py", question)
@@ -61,7 +61,7 @@ def test_06_reflection():
 
 def test_07_fanout():
     out = run("07_parallel_fanout.py", "backend-engineer")
-    assert "branches in parallel" in out and "cand-006.md" in out
+    assert "branches in parallel" in out and "maya-shapiro.md" in out
 
 
 def test_08_long_term_memory():

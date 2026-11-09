@@ -1,7 +1,6 @@
 ---
-title: CV · Yael Cohen (CAND-013)
-doc_id: cand-013
-candidate_id: CAND-013
+title: CV · Yael Cohen
+doc_id: yael-cohen
 name: Yael Cohen
 location: Tel Aviv
 years: 4
@@ -14,7 +13,7 @@ updated: 2026-05-15
 ---
 # Yael Cohen · ML Engineer (NLP)
 
-CAND-013 · Tel Aviv · 4 years of experience · Languages: Hebrew, English
+Tel Aviv · 4 years of experience · Languages: Hebrew, English
 
 ## Summary
 

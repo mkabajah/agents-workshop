@@ -1,7 +1,6 @@
 ---
-title: CV · Maya Shapiro (CAND-006)
-doc_id: cand-006
-candidate_id: CAND-006
+title: CV · Maya Shapiro
+doc_id: maya-shapiro
 name: Maya Shapiro
 location: Be'er Sheva
 years: 5
@@ -14,7 +13,7 @@ updated: 2026-07-15
 ---
 # Maya Shapiro · Backend Engineer (Java)
 
-CAND-006 · Be'er Sheva · 5 years of experience · Languages: Hebrew, English, Russian
+Be'er Sheva · 5 years of experience · Languages: Hebrew, English, Russian
 
 ## Summary
 

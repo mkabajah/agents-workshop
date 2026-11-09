@@ -34,7 +34,7 @@ FRAMEWORKS = [pytest.param("strands", marks=pytest.mark.skipif(not importlib.uti
 @pytest.mark.parametrize("fw", FRAMEWORKS)
 def test_02_first_agent_uses_mcp_tools(fw):
     out = run("02", "Which candidates know Kafka?", "--framework", fw)
-    assert 'find_candidates({"skill": "kafka"' in out and "cand-006.md" in out
+    assert 'find_candidates({"skill": "kafka"' in out and "maya-shapiro.md" in out
 
 
 @pytest.mark.parametrize("fw", FRAMEWORKS)
@@ -61,7 +61,7 @@ def test_05_guardrail_blocks_booking_without_reading_the_cv(fw):
 @pytest.mark.parametrize("fw", FRAMEWORKS)
 def test_06_workflow_same_shortlist_as_langgraph(fw):
     out = run("06", "backend-engineer", "--auto", "--framework", fw)
-    assert "['cand-006.md', 'cand-018.md', 'cand-007.md']" in out and "approved = True" in out
+    assert "['maya-shapiro.md', 'avi-mizrahi.md', 'sami-awad.md']" in out and "approved = True" in out
 
 
 def test_run_py_lists_all_frameworks():

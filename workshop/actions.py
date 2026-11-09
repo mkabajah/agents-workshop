@@ -40,7 +40,7 @@ def get_free_slots() -> list[str]:
 
 @tool
 def schedule_interview(cv: str, job: str, slot: str) -> str:
-    """Book an interview for ONE candidate. cv: the CV file name (e.g. 'cand-006.md').
+    """Book an interview for ONE candidate. cv: the CV file name (e.g. 'maya-shapiro.md').
     job: the job id (e.g. 'backend-engineer'). slot: one of get_free_slots().
     Writes to the shared calendar: needs a reason from the CVs first."""
     if slot not in FREE_SLOTS:

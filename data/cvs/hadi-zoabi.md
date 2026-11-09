@@ -1,7 +1,6 @@
 ---
-title: CV · Hadi Zoabi (CAND-010)
-doc_id: cand-010
-candidate_id: CAND-010
+title: CV · Hadi Zoabi
+doc_id: hadi-zoabi
 name: Hadi Zoabi
 location: Nazareth
 years: 3
@@ -14,7 +13,7 @@ updated: 2026-02-15
 ---
 # Hadi Zoabi · Data Analyst
 
-CAND-010 · Nazareth · 3 years of experience · Languages: Arabic, Hebrew, English
+Nazareth · 3 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

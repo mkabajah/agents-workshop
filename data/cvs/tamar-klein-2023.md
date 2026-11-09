@@ -1,7 +1,6 @@
 ---
-title: CV · Tamar Klein (CAND-009)
-doc_id: cand-009-2023
-candidate_id: CAND-009
+title: CV · Tamar Klein
+doc_id: tamar-klein-2023
 name: Tamar Klein
 location: Tel Aviv
 years: 4
@@ -14,7 +13,7 @@ updated: 2023-01-15
 ---
 # Tamar Klein · Backend Engineer (Node.js)
 
-CAND-009 · Tel Aviv · 4 years of experience · Languages: Hebrew, English
+Tel Aviv · 4 years of experience · Languages: Hebrew, English
 
 ## Summary
 

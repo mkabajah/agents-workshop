@@ -1,7 +1,6 @@
 ---
-title: CV · Rana Ibrahim (CAND-012)
-doc_id: cand-012
-candidate_id: CAND-012
+title: CV · Rana Ibrahim
+doc_id: rana-ibrahim
 name: Rana Ibrahim
 location: Jerusalem
 years: 1
@@ -14,7 +13,7 @@ updated: 2026-04-15
 ---
 # Rana Ibrahim · Junior Data Analyst
 
-CAND-012 · Jerusalem · 1 years of experience · Languages: Arabic, English
+Jerusalem · 1 years of experience · Languages: Arabic, English
 
 ## Summary
 

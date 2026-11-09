@@ -1,7 +1,7 @@
 """
 EXAMPLE 06 · Reflection: a writer and a critic loop until it's good.   Pattern: evaluator–optimizer
 
-    python examples/06_reflection.py cand-006.md backend-engineer
+    python examples/06_reflection.py maya-shapiro.md backend-engineer
 
 What it shows: the writer drafts an interview invitation from the CV; the critic checks it against a
 rubric (specific, fair, short, no promises, no personal data) and returns PASS or a list of fixes.
@@ -71,7 +71,7 @@ def route(s: S):
     return END if done else "write"
 
 
-async def run(cv="cand-006.md", job="backend-engineer"):
+async def run(cv="maya-shapiro.md", job="backend-engineer"):
     """Read the CV once over MCP, then run the write ⇄ critique loop."""
     # Start the CV MCP server once. "async with" stops it again at the end, even after an error.
     async with rag_tools() as tools:
@@ -94,4 +94,4 @@ async def run(cv="cand-006.md", job="backend-engineer"):
 if __name__ == "__main__":
     a = sys.argv[1:]
     # asyncio.run() starts the async function and waits until it is finished.
-    asyncio.run(run(*(a[:2] if len(a) >= 2 else ["cand-006.md", "backend-engineer"])))
+    asyncio.run(run(*(a[:2] if len(a) >= 2 else ["maya-shapiro.md", "backend-engineer"])))

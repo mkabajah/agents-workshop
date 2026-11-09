@@ -1,7 +1,6 @@
 ---
-title: CV · Fadi Khalil (CAND-014)
-doc_id: cand-014
-candidate_id: CAND-014
+title: CV · Fadi Khalil
+doc_id: fadi-khalil
 name: Fadi Khalil
 location: Haifa
 years: 5
@@ -14,7 +13,7 @@ updated: 2026-06-15
 ---
 # Fadi Khalil · Backend Engineer (Go, Python)
 
-CAND-014 · Haifa · 5 years of experience · Languages: Arabic, Hebrew, English
+Haifa · 5 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 

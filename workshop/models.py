@@ -32,7 +32,7 @@ from workshop import config
 SKILLS = ["power bi", "spring boot", "kubernetes", "terraform", "pytorch", "fastapi", "tableau", "docker",
           "kafka", "python", "java", "react", "sql", "aws", "n8n", "rag", "llm", "go", "node", "excel"]
 CITIES = ["haifa", "tel aviv", "nazareth", "jerusalem", "beersheba", "ramallah", "umm al-fahm"]
-# Matches a CV file name like "cand-006.md" anywhere in a text.
+# Matches a CV file name like "maya-shapiro.md" anywhere in a text.
 CV_NAME = re.compile(r"[\w\-.]+\.(?:md|pdf|docx|txt)\b")      # the fake model only sees practice CVs
 # Tools the fake calls at most once per question, so it never loops on them.
 ONCE = {"list_jobs", "search_cvs", "get_cv", "get_free_slots", "schedule_interview", "send_email",

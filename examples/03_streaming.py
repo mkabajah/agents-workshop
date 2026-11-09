@@ -4,7 +4,7 @@ EXAMPLE 03 · Streaming: show each step as it happens.      Pattern: UX for slow
     python examples/03_streaming.py "Who knows Kubernetes and lives in Haifa?"
 
 What it shows: instead of waiting for the whole run (ainvoke), astream() gives you each step the moment
-it finishes. An agent can take 10–60 seconds; streaming the steps ("searching CVs… reading cand-004…")
+it finishes. An agent can take 10–60 seconds; streaming the steps ("searching CVs… reading lina-haddad…")
 makes the wait feel short and makes the agent's reasoning visible to the user.
 
     [model] calling find_candidates(...)  →  [tools] result  →  [model] calling get_cv(...)  →  [model] answer

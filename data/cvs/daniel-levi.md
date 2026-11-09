@@ -1,7 +1,6 @@
 ---
-title: CV · Daniel Levi (CAND-011)
-doc_id: cand-011
-candidate_id: CAND-011
+title: CV · Daniel Levi
+doc_id: daniel-levi
 name: Daniel Levi
 location: Haifa
 years: 6
@@ -14,7 +13,7 @@ updated: 2026-03-15
 ---
 # Daniel Levi · Machine Learning Engineer (Recommender Systems)
 
-CAND-011 · Haifa · 6 years of experience · Languages: Hebrew, English
+Haifa · 6 years of experience · Languages: Hebrew, English
 
 ## Summary
 

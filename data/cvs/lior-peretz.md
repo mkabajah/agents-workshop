@@ -1,7 +1,6 @@
 ---
-title: CV · Lior Peretz (CAND-020)
-doc_id: cand-020
-candidate_id: CAND-020
+title: CV · Lior Peretz
+doc_id: lior-peretz
 name: Lior Peretz
 location: Tel Aviv
 years: 3
@@ -14,7 +13,7 @@ updated: 2026-03-15
 ---
 # Lior Peretz · Backend Engineer (Node.js)
 
-CAND-020 · Tel Aviv · 3 years of experience · Languages: Hebrew, English
+Tel Aviv · 3 years of experience · Languages: Hebrew, English
 
 ## Summary
 

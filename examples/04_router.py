@@ -2,7 +2,7 @@
 EXAMPLE 04 · Router: one classification, then a fixed branch.      Pattern: router (LangGraph)
 
     python examples/04_router.py "Which candidates know Python?"        → LIST   → find_candidates
-    python examples/04_router.py "What did cand-004 build at Orbit?"    → SEARCH → search_cvs
+    python examples/04_router.py "What did lina-haddad build at Orbit?"    → SEARCH → search_cvs
     python examples/04_router.py "What are the backend must-haves?"     → JOB    → list_jobs
 
 What it shows: the model decides ONCE (which kind of question is this?), then plain code runs the right

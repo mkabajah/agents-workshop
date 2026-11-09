@@ -1,7 +1,6 @@
 ---
-title: CV · Eitan Barak (CAND-005)
-doc_id: cand-005
-candidate_id: CAND-005
+title: CV · Eitan Barak
+doc_id: eitan-barak
 name: Eitan Barak
 location: Jerusalem
 years: 2
@@ -14,7 +13,7 @@ updated: 2026-06-15
 ---
 # Eitan Barak · Frontend Developer
 
-CAND-005 · Jerusalem · 2 years of experience · Languages: Hebrew, English
+Jerusalem · 2 years of experience · Languages: Hebrew, English
 
 ## Summary
 

@@ -1,7 +1,6 @@
 ---
-title: CV · Noa Friedman (CAND-002)
-doc_id: cand-002
-candidate_id: CAND-002
+title: CV · Noa Friedman
+doc_id: noa-friedman
 name: Noa Friedman
 location: Tel Aviv
 years: 3
@@ -14,7 +13,7 @@ updated: 2026-03-15
 ---
 # Noa Friedman · Data Analyst
 
-CAND-002 · Tel Aviv · 3 years of experience · Languages: Hebrew, English
+Tel Aviv · 3 years of experience · Languages: Hebrew, English
 
 ## Summary
 

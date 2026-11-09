@@ -1,7 +1,6 @@
 ---
-title: CV · Ahmad Nasser (CAND-001)
-doc_id: cand-001
-candidate_id: CAND-001
+title: CV · Ahmad Nasser
+doc_id: ahmad-nasser
 name: Ahmad Nasser
 location: Nazareth
 years: 4
@@ -14,7 +13,7 @@ updated: 2026-02-15
 ---
 # Ahmad Nasser · Backend Engineer
 
-CAND-001 · Nazareth · 4 years of experience · Languages: Arabic, Hebrew, English
+Nazareth · 4 years of experience · Languages: Arabic, Hebrew, English
 
 ## Summary
 
